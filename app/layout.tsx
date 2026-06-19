@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import siteMetadata from "./metadata.json";
 
 export const metadata: Metadata = {
-  title: "Thanh Tuyen & Ngoc Huyen Wedding Invitation",
-  description: "A Next.js clone of Cocohappii wedding invitation template 009.",
+  title: siteMetadata.app.title,
+  description: siteMetadata.app.description,
 };
 
 export default function RootLayout({
@@ -12,7 +13,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi">
+    <html lang={siteMetadata.layout.lang}>
+      <head>
+        <meta charSet={siteMetadata.layout.charset} />
+        <meta name="viewport" content={siteMetadata.layout.viewport} />
+        {/* Preconnect to Google Fonts if we use them later */}
+        {siteMetadata.layout.preconnect.map((url, idx) => (
+          <link key={idx} rel="preconnect" href={url} />
+        ))}
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href={siteMetadata.layout.fontUrl} rel="stylesheet" />
+      </head>
       <body>{children}</body>
     </html>
   );

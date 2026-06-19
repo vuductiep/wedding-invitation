@@ -1,39 +1,37 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { submitRSVP, submitGuestbookMessage } from "./actions";
+import metadata from "./metadata.json";
 
 export type GuestInvite = {
   slug: string;
   name: string;
   message: string;
+  rsvpAttendance?: string | null;
+  rsvpAccompanyCount?: number | null;
+  rsvpMessage?: string | null;
+};
+
+export interface GuestbookMessage {
+  id: string;
+  name: string;
+  message: string;
+  createdAt: string;
 };
 
 const defaultGuest: GuestInvite = {
-  slug: "phuong-anh",
-  name: "Phương Anh",
-  message:
-    "Mời chị và người thương đến tham dự đám cưới chung vui cùng gia đình em nhé ^^",
+  slug: "phuong-mai",
+  name: "Phương Mai",
+  message: "Mời chị đến chung vui cùng gia đình trong ngày cưới của chúng em.",
 };
 
 const mediaBase =
   "https://media.cocohappii.com/optimized/d2770922-ba69-482b-b451-fcd5c4016ace";
 
-const photos = [
-  "97316b62-00b1-440a-a262-ba9d38c638a0.jpg",
-  "5d324352-0090-4db0-b943-753fc718c623.jpg",
-  "bcaf33ed-84e0-4848-908f-6f431015b5b4.jpg",
-  "f6cc0e9a-7056-4430-bd72-721d3246579a.jpg",
-  "af3d1678-bf31-49a7-817e-95b62b279899.jpg",
-  "ed71d06f-260d-44b6-a998-7b2c914a83c6.jpg",
-  "c64fa484-3790-489b-89a7-7ebece85c022.jpg",
-  "23a0b1a8-fccc-47c8-bc38-fc1c1eedff48.jpg",
-];
+const photos = metadata.gallery.photos;
 
-const timeline = [
-  ["16:00", "Đón khách"],
-  ["16:30", "Bắt đầu nghi lễ cưới"],
-  ["17:00", "Khai tiệc chúc mừng"],
-];
+const timeline = metadata.timeline;
 
 function Img({
   src,
@@ -47,12 +45,21 @@ function Img({
   return <img className={className} src={src} alt={alt} loading="lazy" />;
 }
 
-export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestInvite }) {
+export default function WeddingInvite({
+  guest = defaultGuest,
+  initialGuestbook = [],
+}: {
+  guest?: GuestInvite;
+  initialGuestbook?: GuestbookMessage[];
+}) {
   const [opened, setOpened] = useState(false);
   const [giftOpen, setGiftOpen] = useState(false);
   const [rsvpOpen, setRsvpOpen] = useState(false);
-  const [attendance, setAttendance] = useState("");
+  const [attendance, setAttendance] = useState(guest.rsvpAttendance || "");
   const [toast, setToast] = useState("");
+  const [guestbook, setGuestbook] = useState<GuestbookMessage[]>(initialGuestbook);
+  const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
+  const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
 
   const countdown = useMemo(() => {
     const target = new Date("2026-01-20T11:00:00+07:00").getTime();
@@ -68,10 +75,51 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
     };
   }, []);
 
-  function submitForm(event: FormEvent<HTMLFormElement>, message: string) {
+  async function handleRsvpSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setToast(message);
-    setRsvpOpen(false);
+    setIsSubmittingRsvp(true);
+    const formData = new FormData(event.currentTarget);
+    const attendanceVal = formData.get("attendance") as string;
+    const accompanyVal = parseInt(formData.get("accompany") as string || "0", 10);
+    const noteVal = formData.get("note") as string || "";
+
+    const result = await submitRSVP(guest.slug, attendanceVal, accompanyVal, noteVal);
+    setIsSubmittingRsvp(false);
+
+    if (result.success) {
+      setToast(metadata.toast.rsvpSuccess);
+      setRsvpOpen(false);
+    } else {
+      setToast(result.error || metadata.errors.rsvpFailed);
+    }
+    window.setTimeout(() => setToast(""), 3000);
+  }
+
+  async function handleGuestbookSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSubmittingGuestbook(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const nameVal = formData.get("name") as string;
+    const messageVal = formData.get("message") as string;
+
+    const result = await submitGuestbookMessage(nameVal, messageVal);
+    setIsSubmittingGuestbook(false);
+
+    if (result.success && result.message) {
+      setToast(metadata.toast.guestbookSuccess);
+      const newEntry: GuestbookMessage = {
+        id: result.message.id,
+        name: result.message.name,
+        message: result.message.message,
+        createdAt: result.message.createdAt.toString(),
+      };
+      setGuestbook((prev) => [newEntry, ...prev]);
+      form.reset();
+    } else {
+      setToast(result.error || metadata.errors.guestbookFailed);
+    }
     window.setTimeout(() => setToast(""), 3000);
   }
 
@@ -81,14 +129,14 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
         <section className="guest-popup">
           <div className="guest-card">
             <div className="guest-flower" />
-            <p className="overline">The Wedding Of</p>
-            <h1>Thanh Tuyến ♥ Ngọc Huyền</h1>
-            <p className="guest-date">20.01.2026</p>
-            <p className="guest-label">Gửi lời mời tới</p>
+            <p className="overline">{metadata.popup.overline}</p>
+            <h1>{metadata.popup.coupleNames}</h1>
+            <p className="guest-date">{metadata.popup.date}</p>
+            <p className="guest-label">{metadata.popup.guestLabel}</p>
             <h2>{guest.name}</h2>
             <p className="host-message">&quot;{guest.message}&quot;</p>
             <button className="primary-button" onClick={() => setOpened(true)}>
-              Xem thiệp ngay
+              {metadata.popup.button}
             </button>
           </div>
         </section>
@@ -102,13 +150,13 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
           }}
         >
           <div className="hero-content">
-            <p>Wedding day</p>
+            <p>{metadata.hero.subtitle}</p>
             <h1>
-              <span>Thanh Tuyến</span>
-              <span>Ngọc Huyền</span>
+              <span>{metadata.hero.groom}</span>
+              <span>{metadata.hero.bride}</span>
             </h1>
-            <div className="ampersand">and</div>
-            <time>20.01.2026</time>
+            <div className="ampersand">{metadata.hero.ampersand}</div>
+            <time>{metadata.hero.date}</time>
           </div>
         </section>
 
@@ -116,30 +164,24 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
           <p className="monogram">
             T<span>H</span>
           </p>
-          <h2>
-            We&apos;ve been writing
-            <br />
-            our love story for years...
-            <br />
-            and the next chapter begins in
-          </h2>
+          <h2 dangerouslySetInnerHTML={{ __html: metadata.saveDate.message }} />
           <div className="save-title">
-            <span>Save</span>
-            <em>The</em>
-            <span>Date</span>
+            <span>{metadata.saveDate.save}</span>
+            <em>{metadata.saveDate.the}</em>
+            <span>{metadata.saveDate.date}</span>
           </div>
-          <time>20.01.2026</time>
+          <time>{metadata.saveDate.time}</time>
           <div className="stacked-photos">
             <div className="photo-frame back">
               <Img
                 src={`${mediaBase}/804d434f-60ec-46e3-a93c-ca5c15757bd3.jpg`}
-                alt="Wedding portrait"
+                alt={metadata.imageAlts.weddingPortrait}
               />
             </div>
             <div className="photo-frame front">
               <Img
                 src={`${mediaBase}/3011a6f8-1cf9-46f4-a3cd-40add6ee83f6.jpg`}
-                alt="Wedding portrait"
+                alt={metadata.imageAlts.weddingPortrait}
               />
             </div>
           </div>
@@ -148,89 +190,83 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
         <Img
           className="full-photo"
           src={`${mediaBase}/5b60485e-165f-4a95-a51f-94b0e7400144.jpg`}
-          alt="Wedding couple"
+          alt={metadata.imageAlts.weddingCouple}
         />
 
         <section className="paper info-section">
           <div className="parents">
             <div>
-              <strong>Nhà Trai</strong>
-              <p>Ông: Nguyễn Văn Thanh</p>
-              <p>Bà: Vương Thị Sáu</p>
+              <strong>{metadata.parents.groomSide.title}</strong>
+              <p>{metadata.parents.groomSide.father}</p>
+              <p>{metadata.parents.groomSide.mother}</p>
             </div>
             <div>
-              <strong>Nhà gái</strong>
-              <p>Ông: Nguyễn Duy Dũng</p>
-              <p>Bà: Nguyễn Thị Ngọc</p>
+              <strong>{metadata.parents.brideSide.title}</strong>
+              <p>{metadata.parents.brideSide.father}</p>
+              <p>{metadata.parents.brideSide.mother}</p>
             </div>
           </div>
           <p className="invite-line">
-            Thân mời đến tham dự đám cưới
+            {metadata.inviteLine.part1}
             <br />
-            cùng gia đình chúng tôi!
+            {metadata.inviteLine.part2}
           </p>
           <h2>
-            Thanh Tuyến <span>and</span> Ngọc Huyền
+            {metadata.infoSection.groomName} <span>{metadata.infoSection.and}</span> {metadata.infoSection.brideName}
           </h2>
           <div className="event-list">
-            <EventCard
-              title="Tiệc cưới nhà trai được tổ chức"
-              venue="Tư gia nhà trai"
-              address="Thôn Phú Lộc, Uy Lỗ, Đông Anh, Hà Nội"
-            />
-            <EventCard
-              title="Tiệc cưới nhà gái được tổ chức"
-              venue="Tư gia nhà gái"
-              address="Thôn Phú Liễn, Hợp Tiến, Mỹ Đức, Hà Nội"
-            />
+            {metadata.eventCards.map((card, index) => (
+              <EventCard
+                key={index}
+                title={card.title}
+                venue={card.venue}
+                address={card.address}
+              />
+            ))}
           </div>
         </section>
 
         <section className="story">
           <Img
             src={`${mediaBase}/b1f0889d-1340-44e8-ae22-8c19c4fd21f7.jpg`}
-            alt="Couple story"
+            alt={metadata.imageAlts.coupleStory}
           />
           <div>
-            <p>
-              Tình yêu của anh và em là hành trình được vun đắp bằng kiên
-              nhẫn, thấu hiểu và niềm tin, nơi hai chúng ta chọn nắm tay nhau đi
-              qua nắng mưa để chạm đến hôm nay.
-            </p>
-            <h2>The love story</h2>
+            <p>{metadata.story.content[0]}</p>
+            <h2>{metadata.story.title}</h2>
           </div>
         </section>
 
         <section className="paper couple-section">
           <div className="person left">
-            <p>Cô dâu</p>
-            <h2>Ngọc Huyền</h2>
+            <p>{metadata.coupleSection.brideLabel}</p>
+            <h2>{metadata.coupleSection.brideName}</h2>
           </div>
           <div className="couple-grid">
             <Img
               src={`${mediaBase}/a84d4eca-a5fa-4178-aa21-085d3fda2874.jpg`}
-              alt="Bride"
+              alt={metadata.imageAlts.weddingPortrait}
             />
             <Img
               src={`${mediaBase}/dbdbc6a3-58c7-4629-b6b8-eac7713c4bf5.jpg`}
-              alt="Groom"
+              alt={metadata.imageAlts.weddingPortrait}
             />
           </div>
           <div className="person right">
-            <p>Chú rể</p>
-            <h2>Thanh Tuyến</h2>
+            <p>{metadata.coupleSection.groomLabel}</p>
+            <h2>{metadata.coupleSection.groomName}</h2>
           </div>
         </section>
 
         <Img
           className="full-photo"
           src={`${mediaBase}/4eff7aee-b9d2-452c-9e4e-2e46618c8993.jpg`}
-          alt="Wedding couple formal portrait"
+          alt={metadata.imageAlts.weddingCouple}
         />
 
         <section className="paper timeline-section">
           <h2>
-            <span>Timeline of</span> Wedding
+            <span>{metadata.timelineSection.prefix}</span> {metadata.timelineSection.suffix}
           </h2>
           <div className="timeline">
             {timeline.map(([time, text]) => (
@@ -245,41 +281,67 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
 
         <section className="paper gallery-section">
           <h2>
-            <span>Album</span> of <span>Love</span>
+            <span>{metadata.gallery.titleParts[0]}</span> of <span>{metadata.gallery.titleParts[2]}</span>
           </h2>
           <div className="gallery">
             {photos.map((photo, index) => (
               <Img
                 key={photo}
                 src={`${mediaBase}/${photo}`}
-                alt={`Wedding album ${index + 1}`}
+                alt={`Wedding album ${index + 1}`} /* We could make this dynamic but keep simple */
               />
             ))}
           </div>
         </section>
 
         <section className="paper guestbook">
-          <h2>Sổ lưu bút</h2>
-          <p>
-            Cảm ơn bạn rất nhiều vì đã gửi những lời chúc mừng tốt đẹp nhất đến
-            đám cưới của chúng tôi!
-          </p>
-          <form
-            onSubmit={(event) =>
-              submitForm(event, "Lời chúc của bạn đã được ghi nhận.")
-            }
-          >
-            <input placeholder="Nhập tên của bạn*" required />
-            <textarea placeholder="Nhập lời chúc của bạn*" required />
+          <h2>{metadata.guestbook.title}</h2>
+          <p>{metadata.guestbook.description}</p>
+          <form onSubmit={handleGuestbookSubmit}>
+            <input
+              name="name"
+              placeholder={metadata.guestbook.inputPlaceholder}
+              required
+              disabled={isSubmittingGuestbook}
+            />
+            <textarea
+              name="message"
+              placeholder={metadata.guestbook.textareaPlaceholder}
+              required
+              disabled={isSubmittingGuestbook}
+            />
             <div className="form-actions">
-              <button type="submit">Gửi</button>
+              <button type="submit" disabled={isSubmittingGuestbook}>
+                {isSubmittingGuestbook ? metadata.guestbook.submittingLabel : metadata.guestbook.submitButton}
+              </button>
               <button type="button" onClick={() => setRsvpOpen(true)}>
-                Xác nhận tham dự
+                {metadata.guestbook.rsvpButton}
               </button>
             </div>
           </form>
+
+          {guestbook.length > 0 && (
+            <div className="guestbook-list">
+              {guestbook.map((msg) => (
+                <div key={msg.id} className="guestbook-item">
+                  <div className="guestbook-item-header">
+                    <strong>{msg.name}</strong>
+                    <span className="guestbook-item-date">
+                      {new Date(msg.createdAt).toLocaleDateString("vi-VN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        day: "2-digit",
+                        month: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <p className="guestbook-item-body">{msg.message}</p>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="countdown">
-            <h3>Countdown</h3>
+            <h3>{metadata.guestbook.countdownTitle}</h3>
             <div>
               <span>{countdown.days}</span>:<span>{countdown.hours}</span>:
               <span>{countdown.minutes}</span>:<span>{countdown.seconds}</span>
@@ -290,14 +352,11 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
         <section className="thanks">
           <Img
             src={`${mediaBase}/1b2ea1c8-5b1a-4045-9d97-926d1ef3e4bb.jpg`}
-            alt="Thank you"
+            alt={metadata.imageAlts.thankYou}
           />
           <div>
-            <h2>Thank you</h2>
-            <p>
-              Cảm ơn bạn đã dành tình cảm cho chúng mình! Sự hiện diện của bạn
-              chính là món quà ý nghĩa nhất.
-            </p>
+            <h2>{metadata.thanks.title}</h2>
+            <p>{metadata.thanks.content}</p>
           </div>
         </section>
       </div>
@@ -307,38 +366,33 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
         onClick={() => setRsvpOpen(true)}
         aria-label="Open RSVP"
       >
-        ✓<span>RSVP</span>
+        {metadata.floatingButtons.rsvpLabel}
       </button>
       <button
         className="floating-button gift-button"
         onClick={() => setGiftOpen(true)}
         aria-label="Open wedding gift"
       >
-        ♡
+        {metadata.floatingButtons.giftLabel}
       </button>
-      <button className="audio-button" aria-label="Toggle music">
+      <button className="audio-button" aria-label={metadata.floatingButtons.ariaLabel}>
         ♪
       </button>
 
       {giftOpen && (
-        <Modal title="Quà cưới" onClose={() => setGiftOpen(false)}>
+        <Modal title={metadata.modals.gift.title} onClose={() => setGiftOpen(false)}>
           <div className="gift-grid">
-            <Gift name="Chú rể Thanh Tuyến" type="groom" />
-            <Gift name="Cô dâu Ngọc Huyền" type="bride" />
+            <Gift name={metadata.modals.gift.groomName} type="groom" />
+            <Gift name={metadata.modals.gift.brideName} type="bride" />
           </div>
         </Modal>
       )}
 
       {rsvpOpen && (
-        <Modal title="[RSVP] Xác nhận tham dự" onClose={() => setRsvpOpen(false)}>
-          <form
-            className="rsvp-form"
-            onSubmit={(event) =>
-              submitForm(event, "Phản hồi RSVP của bạn đã được ghi nhận.")
-            }
-          >
+        <Modal title={metadata.modals.rsvp.title} onClose={() => setRsvpOpen(false)}>
+          <form className="rsvp-form" onSubmit={handleRsvpSubmit}>
             <p>
-              Khách mời: <strong>{guest.name}</strong>
+              {metadata.modals.rsvp.guestLabel} <strong>{guest.name}</strong>
             </p>
             <label>
               <input
@@ -346,9 +400,11 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
                 type="radio"
                 value="yes"
                 required
+                defaultChecked={guest.rsvpAttendance === "yes"}
                 onChange={(event) => setAttendance(event.target.value)}
+                disabled={isSubmittingRsvp}
               />
-              Có, tôi sẽ tham dự
+              {metadata.modals.rsvp.attendanceYes}
             </label>
             <label>
               <input
@@ -356,20 +412,35 @@ export default function WeddingInvite({ guest = defaultGuest }: { guest?: GuestI
                 type="radio"
                 value="no"
                 required
+                defaultChecked={guest.rsvpAttendance === "no"}
                 onChange={(event) => setAttendance(event.target.value)}
+                disabled={isSubmittingRsvp}
               />
-              Không, tôi không tham dự được
+              {metadata.modals.rsvp.attendanceNo}
             </label>
             {attendance === "yes" && (
-              <select defaultValue="0" aria-label="Accompany count">
-                <option value="0">Tôi sẽ đến một mình</option>
-                <option value="1">Tôi và 1 người nữa</option>
-                <option value="2">Tôi và 2 người nữa</option>
-                <option value="3">Tôi và 3 người nữa</option>
+              <select
+                name="accompany"
+                defaultValue={guest.rsvpAccompanyCount?.toString() || "0"}
+                aria-label="Accompany count"
+                disabled={isSubmittingRsvp}
+              >
+                {metadata.modals.rsvp.accompanyOptions.map((opt, idx) => (
+                  <option key={idx} value={idx.toString()}>
+                    {opt}
+                  </option>
+                ))}
               </select>
             )}
-            <textarea placeholder="Lời nhắn gửi đến cô dâu chú rể" />
-            <button type="submit">Gửi xác nhận</button>
+            <textarea
+              name="note"
+              placeholder={metadata.modals.rsvp.textareaPlaceholder}
+              defaultValue={guest.rsvpMessage || ""}
+              disabled={isSubmittingRsvp}
+            />
+            <button type="submit" disabled={isSubmittingRsvp}>
+              {isSubmittingRsvp ? metadata.modals.rsvp.submittingLabel : metadata.modals.rsvp.submitButton}
+            </button>
           </form>
         </Modal>
       )}

@@ -1,0 +1,175 @@
+{
+  "app": {
+    "title": "Đức Tiệp & Quỳnh Mai Wedding Invitation",
+    "description": "A wedding invitation."
+  },
+  "layout": {
+    "lang": "vi",
+    "charset": "utf-8",
+    "viewport": "width=device-width, initial-scale=1.0",
+    "preconnect": [
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com"
+    ],
+    "fontUrl": "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap"
+  },
+  "popup": {
+    "overline": "The Wedding Of",
+    "coupleNames": "Đức Tiệp ♥ Quỳnh Mai",
+    "date": "20.01.2026",
+    "guestLabel": "Gửi lời mời tới",
+    "button": "Xem thiệp ngay"
+  },
+  "hero": {
+    "subtitle": "Wedding day",
+    "groom": "Đức Tiệp",
+    "bride": "Quỳnh Mai",
+    "ampersand": "and",
+    "date": "29.07.2026"
+  },
+  "saveDate": {
+    "message": "We&apos;ve been writing<br/>our love story for years...<br/>and the next chapter begins in",
+    "save": "Save",
+    "the": "The",
+    "date": "Date",
+    "time": "29.07.2026"
+  },
+  "inviteLine": {
+    "part1": "Thân mời đến tham dự đám cưới",
+    "part2": "cùng gia đình chúng tôi!"
+  },
+  "infoSection": {
+    "groomName": "Đức Tiệp",
+    "and": "and",
+    "brideName": "Quỳnh Mai"
+  },
+  "parents": {
+    "groomSide": {
+      "title": "Nhà Trai",
+      "father": "Ông: Nguyễn Văn Thanh",
+      "mother": "Bà: Vương Thị Sáu"
+    },
+    "brideSide": {
+      "title": "Nhà gái",
+      "father": "Ông: Nguyễn Duy Dũng",
+      "mother": "Bà: Nguyễn Thị Ngọc"
+    }
+  },
+  "eventCards": [
+    {
+      "title": "Tiệc cưới nhà trai được tổ chức",
+      "venue": "Tư gia nhà trai",
+      "address": "Thôn Phú Lộc, Uy Lỗ, Đông Anh, Hà Nội"
+    },
+    {
+      "title": "Tiệc cưới nhà gái được tổ chức",
+      "venue": "Tư gia nhà gái",
+      "address": "Thôn Phú Liễn, Hợp Tiến, Mỹ Đức, Hà Nội"
+    }
+  ],
+  "story": {
+    "content": [
+      "Tình yêu của anh và em là hành trình được vun đắp bằng kiên nhẫn, thấu hiểu và niềm tin, nơi hai chúng ta chọn nắm tay nhau đi qua nắng mưa để chạm đến hôm nay.",
+      ""
+    ],
+    "title": "The love story"
+  },
+  "coupleSection": {
+    "brideLabel": "Cô dâu",
+    "groomLabel": "Chú rể",
+    "brideName": "Quỳnh Mai",
+    "groomName": "Đức Tiệp"
+  },
+  "timelineSection": {
+    "prefix": "Timeline of",
+    "suffix": "Wedding"
+  },
+  "timeline": [
+    [
+      "16:00",
+      "Đón khách"
+    ],
+    [
+      "16:30",
+      "Bắt đầu nghi lễ cưới"
+    ],
+    [
+      "17:00",
+      "Khai tiệc chúc mừng"
+    ]
+  ],
+  "gallery": {
+    "titleParts": [
+      "Album",
+      "of",
+      "Love"
+    ],
+    "photos": [
+      "97316b62-00b1-440a-a262-ba9d38c638a0.jpg",
+      "5d324352-0090-4db0-b943-753fc718c623.jpg",
+      "bcaf33ed-84e0-4848-908f-6f431015b5b4.jpg",
+      "f6cc0e9a-7056-4430-bd72-721d3246579a.jpg",
+      "af3d1678-bf31-49a7-817e-95b62b279899.jpg",
+      "ed71d06f-260d-44b6-a998-7b2c914a83c6.jpg",
+      "c64fa484-3790-489b-89a7-7ebece85c022.jpg",
+      "23a0b1a8-fccc-47c8-bc38-fc1c1eedff48.jpg"
+    ]
+  },
+  "guestbook": {
+    "title": "Sổ lưu bút",
+    "description": "Cảm ơn bạn rất nhiều vì đã gửi những lời chúc mừng tốt đẹp nhất đến\\nđám cưới của chúng tôi!",
+    "inputPlaceholder": "Nhập tên của bạn*",
+    "textareaPlaceholder": "Nhập lời chúc của bạn*",
+    "submitButton": "Gửi",
+    "rsvpButton": "Xác nhận tham dự",
+    "submittingLabel": "Đang gửi...",
+    "countdownTitle": "Countdown",
+    "toastSuccess": "Lời chúc của bạn đã được ghi nhận."
+  },
+  "thanks": {
+    "imageAlt": "Thank you",
+    "title": "Thank you",
+    "content": "Cảm ơn bạn đã dành tình cảm cho chúng mình! Sự hiện diện của bạn\\nchính là món quà ý nghĩa nhất."
+  },
+  "floatingButtons": {
+    "rsvpLabel": "✓<span>RSVP</span>",
+    "giftLabel": "♡",
+    "ariaLabel": "Toggle music"
+  },
+  "imageAlts": {
+    "weddingPortrait": "Wedding portrait",
+    "weddingCouple": "Wedding couple",
+    "coupleStory": "Couple story",
+    "thankYou": "Thank you"
+  },
+  "modals": {
+    "gift": {
+      "title": "Quà cưới",
+      "groomName": "Chú rể Đức Tiệp",
+      "brideName": "Cô dâu Quỳnh Mai"
+    },
+    "rsvp": {
+      "title": "[RSVP] Xác nhận tham dự",
+      "guestLabel": "Khách mời:",
+      "attendanceYes": "Có, tôi sẽ tham dự",
+      "attendanceNo": "Không, tôi không tham dự được",
+      "accompanyOptions": [
+        "Tôi sẽ đến một mình",
+        "Tôi và 1 người nữa",
+        "Tôi và 2 người nữa",
+        "Tôi và 3 người nữa"
+      ],
+      "textareaPlaceholder": "Lời nhắn gửi đến cô dâu chú rể",
+      "submitButton": "Gửi xác nhận",
+      "submittingLabel": "Đang gửi..."
+    }
+  },
+  "toast": {
+    "rsvpSuccess": "Xác nhận tham dự của bạn đã được ghi nhận.",
+    "guestbookSuccess": "Lời chúc của bạn đã được ghi nhận."
+  },
+  "errors": {
+    "rsvpFailed": "Không thể lưu thông tin xác nhận tham dự. Vui lòng thử lại sau.",
+    "guestbookFailed": "Không thể lưu lời chúc. Vui lòng thử lại sau."
+  }
+}

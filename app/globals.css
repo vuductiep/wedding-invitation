@@ -19,7 +19,7 @@ body {
   margin: 0;
   background: #333;
   color: var(--ink);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 button,
@@ -121,7 +121,7 @@ img {
 .story h2,
 .person h2,
 .thanks h2 {
-  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-family: "Brush Script MT", "Segoe Script", "Open Sans", "Helvetica Neue", cursive;
   font-weight: 400;
 }
 
@@ -195,7 +195,7 @@ img {
 .hero p {
   margin: 0 0 16px;
   font-size: 36px;
-  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-family: "Brush Script MT", "Segoe Script", "Open Sans", "Helvetica Neue", cursive;
 }
 
 .hero h1 {
@@ -204,6 +204,16 @@ img {
   gap: 2px;
   font-size: clamp(58px, 18vw, 88px);
   line-height: 0.82;
+}
+.hero h1 span {
+  font-family: "Open Sans", "Helvetica Neue", sans-serif;
+  font-weight: 600;
+}
+
+.guest-card h2,
+.rsvp-form label strong {
+  font-family: "Open Sans", "Helvetica Neue", sans-serif;
+  font-weight: 600;
 }
 
 .ampersand {
@@ -240,7 +250,7 @@ img {
   margin: 0 auto 22px;
   font-size: 78px;
   line-height: 0.8;
-  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-family: "Brush Script MT", "Segoe Script", "Open Sans", "Helvetica Neue", cursive;
 }
 
 .monogram span {
@@ -337,7 +347,7 @@ img {
 .info-section h2 {
   margin: 0 0 30px;
   text-align: center;
-  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-family: "Brush Script MT", "Segoe Script", "Open Sans", "Helvetica Neue", cursive;
   font-size: 56px;
   font-weight: 400;
   line-height: 0.9;
@@ -453,11 +463,15 @@ img {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 13px;
+  font-family: "Open Sans", "Helvetica Neue", sans-serif;
+  font-weight: 500;
 }
 
 .person h2 {
   margin: 4px 0 20px;
   font-size: 54px;
+  font-family: "Brush Script MT", "Segoe Script", "Open Sans", "Helvetica Neue", cursive;
+  font-weight: 400;
 }
 
 .person.right {
@@ -488,13 +502,35 @@ img {
 }
 
 .timeline-section h2,
-.gallery-section h2,
-.guestbook h2 {
+.gallery-section h2 {
   margin: 0 0 26px;
   text-align: center;
   font-size: 54px;
-  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-family: "Brush Script MT", "Segoe Script", "Open Sans", "Helvetica Neue", cursive;
   font-weight: 400;
+}
+
+.guestbook h2 {
+  margin: 0 0 32px;
+  text-align: center;
+  font-size: 54px;
+  font-family: "Open Sans", "Helvetica Neue", sans-serif;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 12px;
+  color: var(--primary);
+}
+
+.guestbook h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
 }
 
 .timeline-section h2 span,
@@ -589,7 +625,7 @@ img {
 
 .countdown h3 {
   margin: 0 0 12px;
-  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-family: "Brush Script MT", "Segoe Script", "Open Sans", "Helvetica Neue", cursive;
   font-size: 44px;
   font-weight: 400;
 }
@@ -767,7 +803,62 @@ img {
   }
 }
 
-@media (max-width: 380px) {
+@media (min-width: 481px) and (max-width: 780px) {
+  /* Tablet and small desktop adjustments */
+  .paper {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .guest-card {
+    padding: 50px 20px 30px;
+  }
+
+  .guest-card h1 {
+    font-size: clamp(38px, 10vw, 52px);
+  }
+
+  .hero p {
+    font-size: 30px;
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 15vw, 72px);
+  }
+
+  .hero time {
+    font-size: 20px;
+  }
+
+  .info-section h2 {
+    font-size: 48px;
+  }
+
+  .event-card h3 {
+    font-size: 20px;
+  }
+
+  .timeline-section h2,
+  .gallery-section h2,
+  .guestbook h2 {
+    font-size: 48px;
+  }
+
+  .couple-section .person h2 {
+    font-size: 48px;
+  }
+
+  .countdown h3 {
+    font-size: 38px;
+  }
+
+  .countdown div {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Mobile adjustments */
   .paper {
     padding-left: 14px;
     padding-right: 14px;
@@ -795,4 +886,107 @@ img {
   .form-actions {
     grid-template-columns: 1fr;
   }
+
+  /* Additional mobile tweaks */
+  .guest-card {
+    padding: 40px 16px 24px;
+  }
+
+  .guest-card h1 {
+    font-size: clamp(32px, 10vw, 44px);
+  }
+
+  .hero p {
+    font-size: 28px;
+  }
+
+  .hero h1 {
+    font-size: clamp(40px, 12vw, 60px);
+  }
+
+  .hero time {
+    font-size: 18px;
+  }
+
+  .info-section h2 {
+    font-size: 42px;
+  }
+
+  .event-card h3 {
+    font-size: 18px;
+  }
+
+  .timeline-section h2,
+  .gallery-section h2,
+  .guestbook h2 {
+    font-size: 42px;
+  }
+
+  .couple-section .person h2 {
+    font-size: 42px;
+  }
+
+  .countdown h3 {
+    font-size: 34px;
+  }
+
+  .countdown div {
+    font-size: 22px;
+  }
 }
+
+/* Guestbook list styling */
+.guestbook-list {
+  margin-top: 28px;
+  display: grid;
+  gap: 16px;
+  text-align: left;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 6px;
+  border-top: 1px dashed rgba(141, 95, 37, 0.3);
+  padding-top: 24px;
+}
+
+.guestbook-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.guestbook-list::-webkit-scrollbar-thumb {
+  background: rgba(141, 95, 37, 0.2);
+  border-radius: 99px;
+}
+
+.guestbook-item {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(141, 95, 37, 0.15);
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 12px rgba(141, 95, 37, 0.04);
+}
+
+.guestbook-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.guestbook-item-header strong {
+  color: var(--primary-dark);
+}
+
+.guestbook-item-date {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.guestbook-item-body {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  white-space: pre-line;
+}
+

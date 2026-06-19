@@ -1,0 +1,27 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Guest {
+  id                 String    @id @default(uuid())
+  slug               String    @unique
+  name               String
+  message            String    // Custom invitation message to this guest
+  rsvpAttendance     String?   // "yes" or "no"
+  rsvpAccompanyCount Int?      // Number of extra guests (0 to 3)
+  rsvpMessage        String?   // RSVP note/wishes
+  rsvpUpdatedAt      DateTime? @updatedAt
+  createdAt          DateTime  @default(now())
+}
+
+model GuestbookMessage {
+  id        String   @id @default(uuid())
+  name      String
+  message   String
+  createdAt DateTime @default(now())
+}
