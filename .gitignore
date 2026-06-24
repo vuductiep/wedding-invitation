@@ -14,3 +14,6 @@ dev-server.log
 dev-server.err.log
 
 *.tsbuildinfo
+
+# Next.js
+next-env.d.ts
