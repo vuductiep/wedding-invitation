@@ -6,7 +6,7 @@ export default async function Home() {
   const [defaultGuest, guestbookMessages] = await Promise.all([
     prisma.guest
       .findUnique({
-        where: { slug: "phuong-mai" },
+        where: { slug: "bạn" },
       })
       .catch(() => null),
     prisma.guestbookMessage
@@ -17,9 +17,9 @@ export default async function Home() {
   ]);
 
   const guest = defaultGuest || {
-    slug: "phuong-mai",
-    name: "Phương Mai",
-    message: "Mời chị đến chung vui cùng gia đình trong ngày cưới của chúng em.",
+    slug: "guest",
+    name: "Bạn",
+    message: "Mời bạn đến chung vui cùng gia đình trong ngày cưới của chúng tôi.",
   };
 
   return (

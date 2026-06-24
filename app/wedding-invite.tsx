@@ -21,9 +21,9 @@ export interface GuestbookMessage {
 };
 
 const defaultGuest: GuestInvite = {
-  slug: "phuong-mai",
-  name: "Phương Mai",
-  message: "Mời chị đến chung vui cùng gia đình trong ngày cưới của chúng em.",
+  slug: "guest",
+  name: "Bạn",
+  message: "Mời bạn đến chung vui cùng gia đình trong ngày cưới của chúng tôi.",
 };
 
 const mediaBase = "/images";
