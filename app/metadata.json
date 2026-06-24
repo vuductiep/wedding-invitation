@@ -129,8 +129,8 @@
   },
   "guestbook": {
     "title": "Sổ lưu bút",
-    "description": "Cảm ơn bạn rất nhiều vì đã gửi những lời chúc mừng tốt đẹp nhất đến\\nđám cưới của chúng tôi!",
-    "inputPlaceholder": "Nhập tên của bạn*",
+    "description": "Cảm ơn bạn rất nhiều vì đã gửi những lời chúc mừng tốt đẹp nhất đến đám cưới của chúng tôi!",
+    "inputPlaceholder": "Nhập tên của bạn",
     "textareaPlaceholder": "Nhập lời chúc của bạn*",
     "submitButton": "Gửi",
     "rsvpButton": "Xác nhận tham dự",
@@ -142,7 +142,7 @@
   "thanks": {
     "imageAlt": "Thank you",
     "title": "Thank you",
-    "content": "Cảm ơn bạn đã dành tình cảm cho chúng mình! Sự hiện diện của bạn\\nchính là món quà ý nghĩa nhất."
+    "content": "Cảm ơn bạn đã dành tình cảm cho chúng mình! Sự hiện diện của bạn chính là món quà ý nghĩa nhất."
   },
   "floatingButtons": {
     "rsvpLabel": "RSVP",

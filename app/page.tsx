@@ -31,6 +31,7 @@ export default async function Home() {
         message: msg.message,
         createdAt: msg.createdAt.toISOString(),
       }))}
+      isViewOnly={true}
     />
   );
 }

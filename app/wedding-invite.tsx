@@ -60,9 +60,11 @@ function Img({
 export default function WeddingInvite({
   guest = defaultGuest,
   initialGuestbook = [],
+  isViewOnly = false,
 }: {
   guest?: GuestInvite;
   initialGuestbook?: GuestbookMessage[];
+  isViewOnly?: boolean;
 }) {
   const [opened, setOpened] = useState(false);
   const [giftOpen, setGiftOpen] = useState(false);
@@ -132,7 +134,10 @@ export default function WeddingInvite({
     const nameVal = formData.get("name") as string;
     const messageVal = formData.get("message") as string;
 
-    const result = await submitGuestbookMessage(nameVal, messageVal);
+    // Use guest name if name input is empty, otherwise use the input value as alias
+    const finalName = nameVal.trim() !== "" ? nameVal.trim() : guest.name;
+
+    const result = await submitGuestbookMessage(finalName, messageVal, guest.slug);
     setIsSubmittingGuestbook(false);
 
     if (result.success && result.message) {
@@ -143,7 +148,19 @@ export default function WeddingInvite({
         message: result.message.message,
         createdAt: result.message.createdAt.toString(),
       };
-      setGuestbook((prev) => [newEntry, ...prev]);
+      setGuestbook((prev) => {
+        // If there's an existing entry with the same id, replace it; otherwise, prepend.
+        const index = prev.findIndex((msg) => msg.id === newEntry.id);
+        if (index !== -1) {
+          // Replace the existing entry
+          const updated = [...prev];
+          updated[index] = newEntry;
+          return updated;
+        } else {
+          // New entry, prepend
+          return [newEntry, ...prev];
+        }
+      });
       form.reset();
     } else {
       setToast(result.error || metadata.errors.guestbookFailed);
@@ -331,28 +348,30 @@ export default function WeddingInvite({
         <section className="paper guestbook">
           <h2>{metadata.guestbook.title}</h2>
           <p>{metadata.guestbook.description}</p>
-          <form onSubmit={handleGuestbookSubmit}>
-            <input
-              name="name"
-              placeholder={metadata.guestbook.inputPlaceholder}
-              required
-              disabled={isSubmittingGuestbook}
-            />
-            <textarea
-              name="message"
-              placeholder={metadata.guestbook.textareaPlaceholder}
-              required
-              disabled={isSubmittingGuestbook}
-            />
-            <div className="form-actions">
-              <button type="submit" disabled={isSubmittingGuestbook}>
-                {isSubmittingGuestbook ? metadata.guestbook.submittingLabel : metadata.guestbook.submitButton}
-              </button>
-              <button type="button" onClick={() => setRsvpOpen(true)}>
-                {metadata.guestbook.rsvpButton}
-              </button>
-            </div>
-          </form>
+          {!isViewOnly && (
+            <form onSubmit={handleGuestbookSubmit}>
+              <input
+                name="name"
+                defaultValue={guest.name}
+                placeholder={metadata.guestbook.inputPlaceholder}
+                disabled={isSubmittingGuestbook}
+              />
+              <textarea
+                name="message"
+                placeholder={metadata.guestbook.textareaPlaceholder}
+                required
+                disabled={isSubmittingGuestbook}
+              />
+              <div className="form-actions">
+                <button type="submit" disabled={isSubmittingGuestbook}>
+                  {isSubmittingGuestbook ? metadata.guestbook.submittingLabel : metadata.guestbook.submitButton}
+                </button>
+                <button type="button" onClick={() => setRsvpOpen(true)}>
+                  {metadata.guestbook.rsvpButton}
+                </button>
+              </div>
+            </form>
+          )}
 
           {guestbook.length > 0 && (
             <div className="guestbook-list">

@@ -29,25 +29,57 @@ export async function submitRSVP(
   }
 }
 
-export async function submitGuestbookMessage(name: string, message: string) {
+export async function submitGuestbookMessage(name: string, message: string, guestSlug?: string) {
   try {
-    const newMsg = await prisma.guestbookMessage.create({
-      data: {
-        name,
-        message,
-      },
-    });
+    let guestId: string | undefined;
 
-    revalidatePath("/", "layout");
-    return {
-      success: true,
-      message: {
-        id: newMsg.id,
-        name: newMsg.name,
-        message: newMsg.message,
-        createdAt: newMsg.createdAt.toISOString(),
-      },
-    };
+    // If we have a guest slug, find the guest to link the message to
+    if (guestSlug) {
+      const guest = await prisma.guest.findUnique({
+        where: { slug: guestSlug },
+        select: { id: true },
+      });
+
+      if (guest) {
+        guestId = guest.id;
+      }
+    }
+
+    if (guestId) {
+      // Upsert: update if exists, else create
+      const upserted = await prisma.guestbookMessage.upsert({
+        where: { guestId: guestId },
+        update: { name, message },
+        create: { name, message, guestId },
+      });
+
+      revalidatePath("/", "layout");
+      return {
+        success: true,
+        message: {
+          id: upserted.id,
+          name: upserted.name,
+          message: upserted.message,
+          createdAt: upserted.createdAt.toISOString(),
+        },
+      };
+    } else {
+      // No guest slug -> create new anonymous message
+      const newMsg = await prisma.guestbookMessage.create({
+        data: { name, message },
+      });
+
+      revalidatePath("/", "layout");
+      return {
+        success: true,
+        message: {
+          id: newMsg.id,
+          name: newMsg.name,
+          message: newMsg.message,
+          createdAt: newMsg.createdAt.toISOString(),
+        },
+      };
+    }
   } catch (error) {
     console.error("Failed to submit guestbook message:", error);
     return { success: false, error: metadata.errors.guestbookFailed };

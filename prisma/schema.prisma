@@ -17,6 +17,7 @@ model Guest {
   rsvpMessage        String?   // RSVP note/wishes
   rsvpUpdatedAt      DateTime? @updatedAt
   createdAt          DateTime  @default(now())
+  guestbookMessages  GuestbookMessage[] @relation("GuestGuestbookMessages")
 }
 
 model GuestbookMessage {
@@ -24,4 +25,8 @@ model GuestbookMessage {
   name      String
   message   String
   createdAt DateTime @default(now())
+  guest     Guest?   @relation("GuestGuestbookMessages", fields: [guestId], references: [id])
+  guestId   String?
+
+  @@unique([guestId])
 }
