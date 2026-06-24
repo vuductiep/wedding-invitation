@@ -21,7 +21,7 @@ export default function RootLayout({
         {siteMetadata.layout.preconnect.map((url, idx) => (
           <link key={idx} rel="preconnect" href={url} />
         ))}
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href={siteMetadata.layout.fontUrl} rel="stylesheet" />
       </head>
       <body>{children}</body>

@@ -16,7 +16,7 @@
   "popup": {
     "overline": "The Wedding Of",
     "coupleNames": "Đức Tiệp ♥ Quỳnh Mai",
-    "date": "20.01.2026",
+    "date": "29.07.2026",
     "guestLabel": "Gửi lời mời tới",
     "button": "Xem thiệp ngay"
   },
@@ -46,25 +46,37 @@
   "parents": {
     "groomSide": {
       "title": "Nhà Trai",
-      "father": "Ông: Nguyễn Văn Thanh",
-      "mother": "Bà: Vương Thị Sáu"
+      "father": "Ông: Vũ Việt Dũng",
+      "mother": "Bà: Vũ Bích Thủy"
     },
     "brideSide": {
       "title": "Nhà gái",
-      "father": "Ông: Nguyễn Duy Dũng",
-      "mother": "Bà: Nguyễn Thị Ngọc"
+      "father": "Ông: Hạnh",
+      "mother": "Bà: Phương"
     }
   },
   "eventCards": [
     {
       "title": "Tiệc cưới nhà trai được tổ chức",
-      "venue": "Tư gia nhà trai",
-      "address": "Thôn Phú Lộc, Uy Lỗ, Đông Anh, Hà Nội"
+      "venue": "Nhà hàng Khoa Phương",
+      "address": "Số 04, đường Nguyễn Khuyến, tổ 11, phường Trung Sơn, tỉnh Ninh Bình",
+      "time": "10:30, Thứ Tư",
+      "month": "THÁNG 07",
+      "day": "29",
+      "year": "NĂM 2026",
+      "lunar": "(Tức ngày 16 tháng 06 năm Bính Ngọ)",
+      "mapUrl": "https://maps.app.goo.gl/hHhW179LmHivFZceA"
     },
     {
       "title": "Tiệc cưới nhà gái được tổ chức",
       "venue": "Tư gia nhà gái",
-      "address": "Thôn Phú Liễn, Hợp Tiến, Mỹ Đức, Hà Nội"
+      "address": "Thôn Yên Cư 2, xã Yên Khánh, tỉnh Ninh Bình",
+      "time": "12:00, Thứ Ba",
+      "month": "THÁNG 07",
+      "day": "28",
+      "year": "NĂM 2026",
+      "lunar": "(Tức ngày 16 tháng 06 năm Bính Ngọ)",
+      "mapUrl": "https://maps.app.goo.gl/c2DmBz8R6TAzENSZA"
     }
   ],
   "story": {
@@ -86,15 +98,15 @@
   },
   "timeline": [
     [
-      "16:00",
+      "10:00",
       "Đón khách"
     ],
     [
-      "16:30",
+      "10:30",
       "Bắt đầu nghi lễ cưới"
     ],
     [
-      "17:00",
+      "11:00",
       "Khai tiệc chúc mừng"
     ]
   ],
@@ -105,14 +117,14 @@
       "Love"
     ],
     "photos": [
-      "97316b62-00b1-440a-a262-ba9d38c638a0.jpg",
-      "5d324352-0090-4db0-b943-753fc718c623.jpg",
-      "bcaf33ed-84e0-4848-908f-6f431015b5b4.jpg",
-      "f6cc0e9a-7056-4430-bd72-721d3246579a.jpg",
-      "af3d1678-bf31-49a7-817e-95b62b279899.jpg",
-      "ed71d06f-260d-44b6-a998-7b2c914a83c6.jpg",
-      "c64fa484-3790-489b-89a7-7ebece85c022.jpg",
-      "23a0b1a8-fccc-47c8-bc38-fc1c1eedff48.jpg"
+      "0Q0A4905.jpg",
+      "0Q0A5334.jpg",
+      "0Q0A4647.jpg",
+      "anhto2.jpg",
+      "0Q0A4457.jpg",
+      "0Q0A4725.jpg",
+      "0Q0A5021x.jpg",
+      "0Q0A5051x.jpg"
     ]
   },
   "guestbook": {
@@ -124,6 +136,7 @@
     "rsvpButton": "Xác nhận tham dự",
     "submittingLabel": "Đang gửi...",
     "countdownTitle": "Countdown",
+    "countdownTarget": "2026-07-29T10:30:00+07:00",
     "toastSuccess": "Lời chúc của bạn đã được ghi nhận."
   },
   "thanks": {
@@ -132,9 +145,22 @@
     "content": "Cảm ơn bạn đã dành tình cảm cho chúng mình! Sự hiện diện của bạn\\nchính là món quà ý nghĩa nhất."
   },
   "floatingButtons": {
-    "rsvpLabel": "✓<span>RSVP</span>",
+    "rsvpLabel": "RSVP",
     "giftLabel": "♡",
     "ariaLabel": "Toggle music"
+  },
+  "images": {
+    "heroBg": "0Q0A5515.jpg",
+    "saveDateBack": "0Q0A4764.jpg",
+    "saveDateFront": "0Q0A4647.jpg",
+    "fullPhoto1": "0Q0A4332.jpg",
+    "story": "0Q0A5021x.jpg",
+    "coupleLeft": "0Q0A4613.jpg",
+    "coupleRight": "0Q0A4854.jpg",
+    "fullPhoto2": "0Q0A4576deban.jpg",
+    "thankYou": "anhto1.jpg",
+    "groomQR": "https://media.cocohappii.com/qr_codes/df77c4eb-5f8c-432f-8dd8-289be933cb17_groom.png?t=639152094992908050",
+    "brideQR": "https://media.cocohappii.com/qr_codes/df77c4eb-5f8c-432f-8dd8-289be933cb17_bride.png?t=639152094992908050"
   },
   "imageAlts": {
     "weddingPortrait": "Wedding portrait",

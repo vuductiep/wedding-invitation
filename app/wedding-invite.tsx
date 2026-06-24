@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { submitRSVP, submitGuestbookMessage } from "./actions";
 import metadata from "./metadata.json";
 
@@ -26,8 +26,20 @@ const defaultGuest: GuestInvite = {
   message: "Mời chị đến chung vui cùng gia đình trong ngày cưới của chúng em.",
 };
 
-const mediaBase =
-  "https://media.cocohappii.com/optimized/d2770922-ba69-482b-b451-fcd5c4016ace";
+const mediaBase = "/images";
+
+function getImageUrl(path?: string) {
+  if (!path) return "";
+  if (
+    path.startsWith("http://") ||
+    path.startsWith("https://") ||
+    path.startsWith("/") ||
+    path.startsWith("data:")
+  ) {
+    return path;
+  }
+  return `${mediaBase}/${path}`;
+}
 
 const photos = metadata.gallery.photos;
 
@@ -61,18 +73,34 @@ export default function WeddingInvite({
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
 
-  const countdown = useMemo(() => {
-    const target = new Date("2026-01-20T11:00:00+07:00").getTime();
-    const diff = Math.max(0, target - Date.now());
-    const day = 1000 * 60 * 60 * 24;
-    const hour = 1000 * 60 * 60;
-    const minute = 1000 * 60;
-    return {
-      days: Math.floor(diff / day).toString().padStart(2, "0"),
-      hours: Math.floor((diff % day) / hour).toString().padStart(2, "0"),
-      minutes: Math.floor((diff % hour) / minute).toString().padStart(2, "0"),
-      seconds: Math.floor((diff % minute) / 1000).toString().padStart(2, "0"),
+  const [countdown, setCountdown] = useState({
+    days: "00",
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+  });
+
+  useEffect(() => {
+    const targetDate = metadata.guestbook.countdownTarget || "2026-07-29T10:30:00+07:00";
+    const target = new Date(targetDate).getTime();
+
+    const updateCountdown = () => {
+      const diff = Math.max(0, target - Date.now());
+      const day = 1000 * 60 * 60 * 24;
+      const hour = 1000 * 60 * 60;
+      const minute = 1000 * 60;
+      setCountdown({
+        days: Math.floor(diff / day).toString().padStart(2, "0"),
+        hours: Math.floor((diff % day) / hour).toString().padStart(2, "0"),
+        minutes: Math.floor((diff % hour) / minute).toString().padStart(2, "0"),
+        seconds: Math.floor((diff % minute) / 1000).toString().padStart(2, "0"),
+      });
     };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   async function handleRsvpSubmit(event: FormEvent<HTMLFormElement>) {
@@ -146,7 +174,7 @@ export default function WeddingInvite({
         <section
           className="hero"
           style={{
-            backgroundImage: `url(${mediaBase}/812e3c75-a6b9-4426-b43a-fd11845b1c1f.jpg)`,
+            backgroundImage: `url(${getImageUrl(metadata.images.heroBg)})`,
           }}
         >
           <div className="hero-content">
@@ -174,13 +202,13 @@ export default function WeddingInvite({
           <div className="stacked-photos">
             <div className="photo-frame back">
               <Img
-                src={`${mediaBase}/804d434f-60ec-46e3-a93c-ca5c15757bd3.jpg`}
+                src={getImageUrl(metadata.images.saveDateBack)}
                 alt={metadata.imageAlts.weddingPortrait}
               />
             </div>
             <div className="photo-frame front">
               <Img
-                src={`${mediaBase}/3011a6f8-1cf9-46f4-a3cd-40add6ee83f6.jpg`}
+                src={getImageUrl(metadata.images.saveDateFront)}
                 alt={metadata.imageAlts.weddingPortrait}
               />
             </div>
@@ -189,7 +217,7 @@ export default function WeddingInvite({
 
         <Img
           className="full-photo"
-          src={`${mediaBase}/5b60485e-165f-4a95-a51f-94b0e7400144.jpg`}
+          src={getImageUrl(metadata.images.fullPhoto1)}
           alt={metadata.imageAlts.weddingCouple}
         />
 
@@ -221,6 +249,12 @@ export default function WeddingInvite({
                 title={card.title}
                 venue={card.venue}
                 address={card.address}
+                time={card.time}
+                month={card.month}
+                day={card.day}
+                year={card.year}
+                lunar={card.lunar}
+                mapUrl={card.mapUrl}
               />
             ))}
           </div>
@@ -228,7 +262,7 @@ export default function WeddingInvite({
 
         <section className="story">
           <Img
-            src={`${mediaBase}/b1f0889d-1340-44e8-ae22-8c19c4fd21f7.jpg`}
+            src={getImageUrl(metadata.images.story)}
             alt={metadata.imageAlts.coupleStory}
           />
           <div>
@@ -244,11 +278,11 @@ export default function WeddingInvite({
           </div>
           <div className="couple-grid">
             <Img
-              src={`${mediaBase}/a84d4eca-a5fa-4178-aa21-085d3fda2874.jpg`}
+              src={getImageUrl(metadata.images.coupleLeft)}
               alt={metadata.imageAlts.weddingPortrait}
             />
             <Img
-              src={`${mediaBase}/dbdbc6a3-58c7-4629-b6b8-eac7713c4bf5.jpg`}
+              src={getImageUrl(metadata.images.coupleRight)}
               alt={metadata.imageAlts.weddingPortrait}
             />
           </div>
@@ -260,7 +294,7 @@ export default function WeddingInvite({
 
         <Img
           className="full-photo"
-          src={`${mediaBase}/4eff7aee-b9d2-452c-9e4e-2e46618c8993.jpg`}
+          src={getImageUrl(metadata.images.fullPhoto2)}
           alt={metadata.imageAlts.weddingCouple}
         />
 
@@ -287,7 +321,7 @@ export default function WeddingInvite({
             {photos.map((photo, index) => (
               <Img
                 key={photo}
-                src={`${mediaBase}/${photo}`}
+                src={getImageUrl(photo)}
                 alt={`Wedding album ${index + 1}`} /* We could make this dynamic but keep simple */
               />
             ))}
@@ -351,7 +385,7 @@ export default function WeddingInvite({
 
         <section className="thanks">
           <Img
-            src={`${mediaBase}/1b2ea1c8-5b1a-4045-9d97-926d1ef3e4bb.jpg`}
+            src={getImageUrl(metadata.images.thankYou)}
             alt={metadata.imageAlts.thankYou}
           />
           <div>
@@ -382,8 +416,8 @@ export default function WeddingInvite({
       {giftOpen && (
         <Modal title={metadata.modals.gift.title} onClose={() => setGiftOpen(false)}>
           <div className="gift-grid">
-            <Gift name={metadata.modals.gift.groomName} type="groom" />
-            <Gift name={metadata.modals.gift.brideName} type="bride" />
+            <Gift name={metadata.modals.gift.groomName} src={getImageUrl(metadata.images.groomQR)} />
+            <Gift name={metadata.modals.gift.brideName} src={getImageUrl(metadata.images.brideQR)} />
           </div>
         </Modal>
       )}
@@ -454,30 +488,50 @@ function EventCard({
   title,
   venue,
   address,
+  time,
+  month,
+  day,
+  year,
+  lunar,
+  mapUrl,
 }: {
   title: string;
   venue: string;
   address: string;
+  time?: string;
+  month?: string;
+  day?: string;
+  year?: string;
+  lunar?: string;
+  mapUrl?: string;
 }) {
   return (
     <article className="event-card">
       <p>
         {title}
-        <br />
-        vào lúc <strong>16:00, Thứ Hai</strong>
+        {time && (
+          <>
+            <br />
+            vào lúc <strong>{time}</strong>
+          </>
+        )}
       </p>
-      <div className="date-box">
-        <span>THÁNG 01</span>
-        <strong>19</strong>
-        <span>NĂM 2026</span>
-      </div>
-      <p className="lunar">(Tức ngày 1 tháng 12 năm Ất Tỵ)</p>
+      {(month || day || year) && (
+        <div className="date-box">
+          {month && <span>{month}</span>}
+          {day && <strong>{day}</strong>}
+          {year && <span>{year}</span>}
+        </div>
+      )}
+      {lunar && <p className="lunar">{lunar}</p>}
       <p>Tại địa điểm</p>
       <h3>{venue}</h3>
       <p>{address}</p>
-      <a href="https://maps.app.goo.gl/zGqBkBf8Q4HX3SyY6" target="_blank">
-        Chỉ đường
-      </a>
+      {mapUrl && (
+        <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+          Chỉ đường
+        </a>
+      )}
     </article>
   );
 }
@@ -506,12 +560,12 @@ function Modal({
   );
 }
 
-function Gift({ name, type }: { name: string; type: "groom" | "bride" }) {
+function Gift({ name, src }: { name: string; src: string }) {
   return (
     <div className="gift-card">
       <h3>{name}</h3>
       <Img
-        src={`https://media.cocohappii.com/qr_codes/df77c4eb-5f8c-432f-8dd8-289be933cb17_${type}.png?t=639152094992908050`}
+        src={src}
         alt={`${name} QR code`}
       />
     </div>
