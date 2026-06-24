@@ -198,9 +198,11 @@ export default function WeddingInvite({
             <p>{metadata.hero.subtitle}</p>
             <h1>
               <span>{metadata.hero.groom}</span>
+            </h1>
+            <span className="ampersand">{metadata.hero.ampersand}</span>
+            <h1>
               <span>{metadata.hero.bride}</span>
             </h1>
-            <div className="ampersand">{metadata.hero.ampersand}</div>
             <time>{metadata.hero.date}</time>
           </div>
         </section>

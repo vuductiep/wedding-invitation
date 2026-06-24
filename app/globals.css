@@ -205,13 +205,8 @@ img {
   font-size: clamp(58px, 18vw, 88px);
   line-height: 0.82;
 }
-.hero h1 span {
-  font-family: "Open Sans", "Helvetica Neue", sans-serif;
-  font-weight: 600;
-}
 
-.guest-card h2,
-.rsvp-form label strong {
+.hero h1 span {
   font-family: "Open Sans", "Helvetica Neue", sans-serif;
   font-weight: 600;
 }
@@ -431,10 +426,27 @@ img {
   object-fit: cover;
 }
 
-.story div,
-.thanks div {
+.story div {
   position: relative;
   padding: 32px 24px 46px;
+  background: rgba(0, 0, 0, 0.35); /* Semi-transparent dark background */
+  border-radius: 16px;
+  backdrop-filter: blur(4px); /* Optional: adds a subtle blur effect */
+  max-width: 80%;
+  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Improved styling for thank you message - make it clearer */
+.thanks div {
+  background: rgba(0, 0, 0, 0.4); /* Semi-transparent dark background */
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(4px); /* Optional: adds a subtle blur effect */
+  max-width: 80%;
+  margin: 0 auto;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .story p,
@@ -448,6 +460,20 @@ img {
   margin: 18px 0 0;
   font-size: 66px;
   line-height: 0.85;
+}
+
+/* Enhance the thank you text specifically */
+.thanks h2 {
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.thanks p {
+  color: #fff;
+  font-size: 18px;
+  line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
 }
 
 .couple-section {
@@ -647,10 +673,6 @@ img {
 .thanks {
   min-height: 620px;
   text-align: center;
-}
-
-.thanks p {
-  margin: 0 auto;
 }
 
 .floating-button,
@@ -990,4 +1012,3 @@ img {
   color: var(--ink);
   white-space: pre-line;
 }
-
