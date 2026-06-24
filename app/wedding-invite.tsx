@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { submitRSVP, submitGuestbookMessage } from "./actions";
 import metadata from "./metadata.json";
 
@@ -74,6 +74,8 @@ export default function WeddingInvite({
   const [guestbook, setGuestbook] = useState<GuestbookMessage[]>(initialGuestbook);
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const [countdown, setCountdown] = useState({
     days: "00",
@@ -103,6 +105,36 @@ export default function WeddingInvite({
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Initialize audio element
+  useEffect(() => {
+    // Create audio element if it doesn't exist
+    if (!audioRef.current) {
+      // Try MP3 first, then WAV as fallback
+      const audio = new Audio('/music/wedding-music.mp3');
+      audio.loop = true; // Loop the music
+      audio.volume = 0.5; // Set volume to 50%
+      audioRef.current = audio;
+
+      // Handle audio errors (file not found, etc.)
+      audio.addEventListener('error', (e: Event) => {
+        console.warn('Audio file not found or cannot be played:', e);
+        // Try with .wav extension as fallback
+        const audioWav = new Audio('/music/wedding-music.wav');
+        audioWav.loop = true;
+        audioWav.volume = 0.5;
+        audioRef.current = audioWav;
+      });
+    }
+
+    // Cleanup
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
   }, []);
 
   async function handleRsvpSubmit(event: FormEvent<HTMLFormElement>) {
@@ -167,6 +199,22 @@ export default function WeddingInvite({
     }
     window.setTimeout(() => setToast(""), 3000);
   }
+
+  const toggleMusic = () => {
+    if (!audioRef.current) return;
+
+    if (isMusicPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch((error) => {
+        console.error("Error playing audio:", error);
+        // Show toast if audio fails to play (e.g., due to autoplay restrictions)
+        setToast("Unable to play audio. Please interact with the page first.");
+        window.setTimeout(() => setToast(""), 3000);
+      });
+    }
+    setIsMusicPlaying(!isMusicPlaying);
+  };
 
   return (
     <main className={`site-shell ${opened ? "opened" : ""}`}>
@@ -430,7 +478,11 @@ export default function WeddingInvite({
       >
         {metadata.floatingButtons.giftLabel}
       </button>
-      <button className="audio-button" aria-label={metadata.floatingButtons.ariaLabel}>
+      <button
+        className={`audio-button ${isMusicPlaying ? "playing" : ""}`}
+        onClick={toggleMusic}
+        aria-label={metadata.floatingButtons.ariaLabel}
+      >
         ♪
       </button>
 
@@ -501,6 +553,8 @@ export default function WeddingInvite({
       )}
 
       {toast && <div className="toast">{toast}</div>}
+      {/* Audio element for background music */}
+      <audio ref={audioRef} src="/music/wedding-music.mp3" loop preload="auto" />
     </main>
   );
 }
