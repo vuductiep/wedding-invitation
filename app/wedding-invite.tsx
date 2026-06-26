@@ -198,6 +198,9 @@ export default function WeddingInvite({
 
     setZoom(1);
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setSelectedPhotoIndex(null);
@@ -211,8 +214,11 @@ export default function WeddingInvite({
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      globalThis.removeEventListener("keydown", handleKeyDown);
+    };
   }, [selectedPhotoIndex]);
 
   const openGalleryPhoto = (index: number) => {
@@ -253,7 +259,6 @@ export default function WeddingInvite({
       const distance = Math.hypot(touchA.clientX - touchB.clientX, touchA.clientY - touchB.clientY);
       const nextScale = clamp((pinchStateRef.current.scale * distance) / pinchStateRef.current.distance, 1, 3);
       setZoom(nextScale);
-      return;
     }
   };
   const handleGalleryTouchEnd = (event: TouchEvent<HTMLElement>) => {
@@ -456,6 +461,8 @@ export default function WeddingInvite({
           </div>
           <p className="invite-line">
             {metadata.inviteLine.part1}
+            <br />
+            <span className="guest-name">{guest.name}</span>
             <br />
             {metadata.inviteLine.part2}
           </p>
