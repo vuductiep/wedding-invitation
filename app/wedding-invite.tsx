@@ -1,6 +1,6 @@
 "use client";
 
-import { type ComponentPropsWithoutRef, type SubmitEvent, useEffect, useRef, useState } from "react";
+import { type ComponentPropsWithoutRef, type SubmitEvent, type TouchEvent, useEffect, useRef, useState } from "react";
 import { submitRSVP, submitGuestbookMessage } from "./actions";
 import metadata from "./metadata.json";
 
@@ -27,6 +27,10 @@ const defaultGuest: GuestInvite = {
 };
 
 const mediaBase = "/images";
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
 
 function getImageUrl(path?: string) {
   if (!path) return "";
@@ -82,6 +86,10 @@ export default function WeddingInvite({
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const pinchStateRef = useRef<{ distance: number; scale: number } | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const [countdown, setCountdown] = useState({
@@ -150,7 +158,7 @@ export default function WeddingInvite({
       // Try MP3 first, then WAV as fallback
       const audio = new Audio('/music/wedding-music.mp3');
       audio.loop = true; // Loop the music
-      audio.volume = 0.5; // Set volume to 50%
+      audio.volume = 0.3; // Set volume to 50%
       audioRef.current = audio;
 
       // Handle audio errors (file not found, etc.)
@@ -159,7 +167,7 @@ export default function WeddingInvite({
         // Try with .wav extension as fallback
         const audioWav = new Audio('/music/wedding-music.wav');
         audioWav.loop = true;
-        audioWav.volume = 0.5;
+        audioWav.volume = 0.3;
         audioRef.current = audioWav;
       });
     }
@@ -182,6 +190,92 @@ export default function WeddingInvite({
       setIsMusicPlaying(true);
     }
   }, [opened]);
+
+  useEffect(() => {
+    if (selectedPhotoIndex === null) {
+      return;
+    }
+
+    setZoom(1);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedPhotoIndex(null);
+      } else if (event.key === "ArrowRight") {
+        setSelectedPhotoIndex((prev) => (prev === null ? null : (prev + 1) % photos.length));
+      } else if (event.key === "ArrowLeft") {
+        setSelectedPhotoIndex((prev) => {
+          if (prev === null) return null;
+          return prev === 0 ? photos.length - 1 : prev - 1;
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedPhotoIndex]);
+
+  const openGalleryPhoto = (index: number) => {
+    setSelectedPhotoIndex(index);
+    setZoom(1);
+  };
+  const closeGalleryPhoto = () => {
+    setSelectedPhotoIndex(null);
+    setZoom(1);
+    pinchStateRef.current = null;
+  };
+  const showPreviousPhoto = () => {
+    setSelectedPhotoIndex((prev) => {
+      if (prev === null) return null;
+      return prev === 0 ? photos.length - 1 : prev - 1;
+    });
+    setZoom(1);
+  };
+  const showNextPhoto = () => {
+    setSelectedPhotoIndex((prev) => (prev === null ? null : (prev + 1) % photos.length));
+    setZoom(1);
+  };
+  const handleGalleryTouchStart = (event: TouchEvent<HTMLElement>) => {
+    if (event.touches.length === 2) {
+      const [touchA, touchB] = Array.from(event.touches);
+      pinchStateRef.current = {
+        distance: Math.hypot(touchA.clientX - touchB.clientX, touchA.clientY - touchB.clientY),
+        scale: zoom,
+      };
+      return;
+    }
+
+    setTouchStartX(event.touches[0]?.clientX ?? null);
+  };
+  const handleGalleryTouchMove = (event: TouchEvent<HTMLElement>) => {
+    if (event.touches.length === 2 && pinchStateRef.current) {
+      const [touchA, touchB] = Array.from(event.touches);
+      const distance = Math.hypot(touchA.clientX - touchB.clientX, touchA.clientY - touchB.clientY);
+      const nextScale = clamp((pinchStateRef.current.scale * distance) / pinchStateRef.current.distance, 1, 3);
+      setZoom(nextScale);
+      return;
+    }
+  };
+  const handleGalleryTouchEnd = (event: TouchEvent<HTMLElement>) => {
+    if (event.touches.length > 0) {
+      return;
+    }
+
+    pinchStateRef.current = null;
+
+    if (zoom > 1 || touchStartX === null) {
+      setTouchStartX(null);
+      return;
+    }
+
+    const delta = (event.changedTouches[0]?.clientX ?? 0) - touchStartX;
+    if (delta > 60) {
+      showPreviousPhoto();
+    } else if (delta < -60) {
+      showNextPhoto();
+    }
+    setTouchStartX(null);
+  };
 
   async function handleRsvpSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -453,7 +547,16 @@ export default function WeddingInvite({
                 data-reveal
                 style={{ transitionDelay: `${index * 80}ms` }}
                 src={getImageUrl(photo)}
-                alt={`Wedding album ${index + 1}`} /* We could make this dynamic but keep simple */
+                alt={`Wedding album ${index + 1}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => openGalleryPhoto(index)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openGalleryPhoto(index);
+                  }
+                }}
               />
             ))}
           </div>
@@ -643,6 +746,43 @@ export default function WeddingInvite({
             </button>
           </form>
         </Modal>
+      )}
+
+      {selectedPhotoIndex !== null && photos.length > 0 && (
+        <div
+          className="gallery-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Photo gallery"
+          onClick={closeGalleryPhoto}
+          onTouchStart={handleGalleryTouchStart}
+          onTouchMove={handleGalleryTouchMove}
+          onTouchEnd={handleGalleryTouchEnd}
+        >
+          <div className="gallery-lightbox__content" onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="gallery-lightbox__close" onClick={closeGalleryPhoto} aria-label="Close photo">
+              ×
+            </button>
+            <div className="gallery-lightbox__image-wrapper">
+              <button type="button" className="gallery-lightbox__nav gallery-lightbox__nav--prev" onClick={showPreviousPhoto} aria-label="Previous photo">
+                ‹
+              </button>
+              <img
+                className="gallery-lightbox__image"
+                src={getImageUrl(photos[selectedPhotoIndex])}
+                alt={`Wedding album ${selectedPhotoIndex + 1}`}
+                style={{ transform: `scale(${zoom})` }}
+              />
+              <button type="button" className="gallery-lightbox__nav gallery-lightbox__nav--next" onClick={showNextPhoto} aria-label="Next photo">
+                ›
+              </button>
+            </div>
+            <div className="gallery-lightbox__meta">
+              <span>{selectedPhotoIndex + 1} / {photos.length}</span>
+              <p>Swipe left or right to browse more photos.</p>
+            </div>
+          </div>
+        </div>
       )}
 
       {toast && <div className="toast">{toast}</div>}
