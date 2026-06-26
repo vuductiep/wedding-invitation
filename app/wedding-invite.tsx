@@ -416,7 +416,7 @@ export default function WeddingInvite({
                 <button type="submit" disabled={isSubmittingGuestbook}>
                   {isSubmittingGuestbook ? metadata.guestbook.submittingLabel : metadata.guestbook.submitButton}
                 </button>
-                <button type="button" onClick={() => setRsvpOpen(true)}>
+                <button type="button" onClick={() => setRsvpOpen(true)} disabled={isSubmittingGuestbook}>
                   {metadata.guestbook.rsvpButton}
                 </button>
               </div>
@@ -465,23 +465,18 @@ export default function WeddingInvite({
       </div>
 
       <button
-        className="floating-button rsvp-button"
-        onClick={() => setRsvpOpen(true)}
-        aria-label="Open RSVP"
-      >
-        {metadata.floatingButtons.rsvpLabel}
-      </button>
-      <button
-        className="floating-button gift-button"
+        className="floating-button gift-button right"
         onClick={() => setGiftOpen(true)}
         aria-label="Open wedding gift"
+        style={{ width: '60px', height: '60px' }}
       >
-        {metadata.floatingButtons.giftLabel}
+        🎁
       </button>
       <button
-        className={`audio-button ${isMusicPlaying ? "playing" : ""}`}
+        className={`audio-button ${isMusicPlaying ? "playing" : ""} left`}
         onClick={toggleMusic}
         aria-label={metadata.floatingButtons.ariaLabel}
+        style={{ width: '60px', height: '60px' }}
       >
         ♪
       </button>

@@ -679,6 +679,7 @@ img {
 .audio-button {
   position: fixed;
   z-index: 20;
+  bottom: 24px;
   border: 0;
   color: #fff;
   background: var(--primary);
@@ -710,13 +711,11 @@ img {
 }
 
 .gift-button {
-  bottom: 84px;
   font-size: 24px;
 }
 
 .audio-button {
   left: max(18px, calc((100vw - 480px) / 2 + 18px));
-  bottom: 24px;
   width: 46px;
   height: 46px;
   border-radius: 50%;
