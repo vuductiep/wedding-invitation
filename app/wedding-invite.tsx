@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { type SubmitEvent, useEffect, useRef, useState } from "react";
 import { submitRSVP, submitGuestbookMessage } from "./actions";
 import metadata from "./metadata.json";
 
@@ -50,11 +50,11 @@ function Img({
   src,
   alt,
   className,
-}: {
+}: Readonly<{
   src: string;
   alt: string;
   className?: string;
-}) {
+}>) {
   return <img className={className} src={src} alt={alt} loading="lazy" />;
 }
 
@@ -62,11 +62,11 @@ export default function WeddingInvite({
   guest = defaultGuest,
   initialGuestbook = [],
   isViewOnly = false,
-}: {
+}: Readonly<{
   guest?: GuestInvite;
   initialGuestbook?: GuestbookMessage[];
   isViewOnly?: boolean;
-}) {
+}>) {
   const [opened, setOpened] = useState(false);
   const [giftOpen, setGiftOpen] = useState(false);
   const [rsvpOpen, setRsvpOpen] = useState(false);
@@ -183,12 +183,12 @@ export default function WeddingInvite({
     }
   }, [opened]);
 
-  async function handleRsvpSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleRsvpSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmittingRsvp(true);
     const formData = new FormData(event.currentTarget);
     const attendanceVal = formData.get("attendance") as string;
-    const accompanyVal = parseInt(formData.get("accompany") as string || "0", 10);
+    const accompanyVal = Number.parseInt(formData.get("accompany") as string || "0", 10);
     const noteVal = formData.get("note") as string || "";
 
     const result = await submitRSVP(guest.slug, attendanceVal, accompanyVal, noteVal);
@@ -200,10 +200,10 @@ export default function WeddingInvite({
     } else {
       setToast(result.error || metadata.errors.rsvpFailed);
     }
-    window.setTimeout(() => setToast(""), 3000);
+    globalThis.setTimeout(() => setToast(""), 3000);
   }
 
-  async function handleGuestbookSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleGuestbookSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmittingGuestbook(true);
 
@@ -622,7 +622,7 @@ export default function WeddingInvite({
                 disabled={isSubmittingRsvp}
               >
                 {metadata.modals.rsvp.accompanyOptions.map((opt, idx) => (
-                  <option key={idx} value={idx.toString()}>
+                  <option key={"key" + idx} value={idx.toString()}>
                     {opt}
                   </option>
                 ))}
@@ -643,7 +643,9 @@ export default function WeddingInvite({
 
       {toast && <div className="toast">{toast}</div>}
       {/* Audio element for background music */}
-      <audio ref={audioRef} src="/music/wedding-music.mp3" loop preload="auto" />
+      <audio ref={audioRef} src="/music/wedding-music.mp3" loop preload="auto">
+         <track kind="captions" />
+      </audio>
     </main>
   );
 }

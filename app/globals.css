@@ -243,15 +243,6 @@ img {
   gap: 4px;
 }
 
-.hero h1 {
-  margin: 0;
-  display: grid;
-  gap: 2px;
-  font-size: clamp(52px, 13vw, 80px);
-  line-height: 0.88;
-  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.26);
-}
-
 .hero h1 span,
 .name-script,
 .guest-card h1.name-script,
@@ -546,7 +537,6 @@ img {
 }
 
 .info-section h2 span:not(.name-script) {
-  display: block;
   margin: 8px auto;
   width: 58px;
   height: 58px;
