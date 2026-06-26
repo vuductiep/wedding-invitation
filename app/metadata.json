@@ -11,7 +11,7 @@
       "https://fonts.googleapis.com",
       "https://fonts.gstatic.com"
     ],
-    "fontUrl": "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap"
+    "fontUrl": "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Dancing+Script:wght@500;700&display=swap"
   },
   "popup": {
     "overline": "The Wedding Of",
@@ -35,8 +35,8 @@
     "time": "29.07.2026"
   },
   "inviteLine": {
-    "part1": "Thân mời đến tham dự đám cưới",
-    "part2": "cùng gia đình chúng tôi!"
+    "part1": "Trân trọng kính mời",
+    "part2": "Tham dự bữa tiệc chung vui cùng gia đình!"
   },
   "infoSection": {
     "groomName": "Đức Tiệp",
@@ -71,11 +71,11 @@
       "title": "Tiệc cưới nhà gái được tổ chức",
       "venue": "Tư gia nhà gái",
       "address": "Thôn Yên Cư 2, xã Yên Khánh, tỉnh Ninh Bình",
-      "time": "12:00, Thứ Ba",
+      "time": "12:00, Chủ nhật",
       "month": "THÁNG 07",
-      "day": "28",
+      "day": "26",
       "year": "NĂM 2026",
-      "lunar": "(Tức ngày 16 tháng 06 năm Bính Ngọ)",
+      "lunar": "(Tức ngày 13 tháng 06 năm Bính Ngọ)",
       "mapUrl": "https://maps.app.goo.gl/c2DmBz8R6TAzENSZA"
     }
   ],
@@ -112,8 +112,7 @@
   ],
   "gallery": {
     "titleParts": [
-      "Album",
-      "of",
+      "Album of",
       "Love"
     ],
     "photos": [
@@ -128,13 +127,17 @@
     ]
   },
   "guestbook": {
-    "title": "Sổ lưu bút",
+    "title": "Guestbook",
+    "prefix": "Sổ lưu bút",
+    "suffix": "Guestbook",
     "description": "Cảm ơn bạn rất nhiều vì đã gửi những lời chúc mừng tốt đẹp nhất đến đám cưới của chúng tôi!",
     "inputPlaceholder": "Nhập tên của bạn",
     "textareaPlaceholder": "Nhập lời chúc của bạn*",
     "submitButton": "Gửi",
     "rsvpButton": "Xác nhận tham dự",
     "submittingLabel": "Đang gửi...",
+    "loadMoreButton": "Xem thêm lời chúc",
+    "emptyState": "Chưa có lời chúc nào. Hãy là người đầu tiên!",
     "countdownTitle": "Countdown",
     "countdownTarget": "2026-07-29T10:30:00+07:00",
     "toastSuccess": "Lời chúc của bạn đã được ghi nhận."

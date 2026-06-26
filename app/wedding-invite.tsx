@@ -44,6 +44,7 @@ function getImageUrl(path?: string) {
 const photos = metadata.gallery.photos;
 
 const timeline = metadata.timeline;
+const GUESTBOOK_PAGE_SIZE = 6;
 
 function Img({
   src,
@@ -72,10 +73,15 @@ export default function WeddingInvite({
   const [attendance, setAttendance] = useState(guest.rsvpAttendance || "");
   const [toast, setToast] = useState("");
   const [guestbook, setGuestbook] = useState<GuestbookMessage[]>(initialGuestbook);
+  const [visibleGuestbookCount, setVisibleGuestbookCount] = useState(
+    Math.min(GUESTBOOK_PAGE_SIZE, initialGuestbook.length)
+  );
   const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const saveDateRef = useRef<HTMLElement | null>(null);
+  const coupleSectionRef = useRef<HTMLElement | null>(null);
 
   const [countdown, setCountdown] = useState({
     days: "00",
@@ -83,6 +89,36 @@ export default function WeddingInvite({
     minutes: "00",
     seconds: "00",
   });
+
+  useEffect(() => {
+    setGuestbook(initialGuestbook);
+    setVisibleGuestbookCount(Math.min(GUESTBOOK_PAGE_SIZE, initialGuestbook.length));
+  }, [initialGuestbook]);
+
+  useEffect(() => {
+    const elements = [saveDateRef.current, coupleSectionRef.current].filter(Boolean) as HTMLElement[];
+
+    if (elements.length === 0) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          } else {
+            entry.target.classList.remove("is-visible");
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    elements.forEach((element) => observer.observe(element));
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const targetDate = metadata.guestbook.countdownTarget || "2026-07-29T10:30:00+07:00";
@@ -137,6 +173,16 @@ export default function WeddingInvite({
     };
   }, []);
 
+  // Autoplay music when invitation opens
+  useEffect(() => {
+    if (opened && audioRef.current && !isMusicPlaying) {
+      audioRef.current.play().catch((error) => {
+        console.error("Error autoplay audio:", error);
+      });
+      setIsMusicPlaying(true);
+    }
+  }, [opened]);
+
   async function handleRsvpSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmittingRsvp(true);
@@ -167,7 +213,7 @@ export default function WeddingInvite({
     const messageVal = formData.get("message") as string;
 
     // Use guest name if name input is empty, otherwise use the input value as alias
-    const finalName = nameVal.trim() !== "" ? nameVal.trim() : guest.name;
+    const finalName = nameVal.trim() === "" ? guest.name : nameVal.trim();
 
     const result = await submitGuestbookMessage(finalName, messageVal, guest.slug);
     setIsSubmittingGuestbook(false);
@@ -183,21 +229,21 @@ export default function WeddingInvite({
       setGuestbook((prev) => {
         // If there's an existing entry with the same id, replace it; otherwise, prepend.
         const index = prev.findIndex((msg) => msg.id === newEntry.id);
-        if (index !== -1) {
+        if (index === -1) {
+          // New entry, prepend
+          return [newEntry, ...prev];
+        } else {
           // Replace the existing entry
           const updated = [...prev];
           updated[index] = newEntry;
           return updated;
-        } else {
-          // New entry, prepend
-          return [newEntry, ...prev];
         }
       });
       form.reset();
     } else {
       setToast(result.error || metadata.errors.guestbookFailed);
     }
-    window.setTimeout(() => setToast(""), 3000);
+    globalThis.setTimeout(() => setToast(""), 3000);
   }
 
   const toggleMusic = () => {
@@ -210,10 +256,16 @@ export default function WeddingInvite({
         console.error("Error playing audio:", error);
         // Show toast if audio fails to play (e.g., due to autoplay restrictions)
         setToast("Unable to play audio. Please interact with the page first.");
-        window.setTimeout(() => setToast(""), 3000);
+        globalThis.setTimeout(() => setToast(""), 3000);
       });
     }
     setIsMusicPlaying(!isMusicPlaying);
+  };
+
+  const visibleGuestbook = guestbook.slice(0, visibleGuestbookCount);
+
+  const handleLoadMoreGuestbook = () => {
+    setVisibleGuestbookCount((prev) => Math.min(prev + GUESTBOOK_PAGE_SIZE, guestbook.length));
   };
 
   return (
@@ -223,7 +275,7 @@ export default function WeddingInvite({
           <div className="guest-card">
             <div className="guest-flower" />
             <p className="overline">{metadata.popup.overline}</p>
-            <h1>{metadata.popup.coupleNames}</h1>
+            <h1 className="name-script">{metadata.popup.coupleNames}</h1>
             <p className="guest-date">{metadata.popup.date}</p>
             <p className="guest-label">{metadata.popup.guestLabel}</p>
             <h2>{guest.name}</h2>
@@ -243,30 +295,37 @@ export default function WeddingInvite({
           }}
         >
           <div className="hero-content">
-            <p>{metadata.hero.subtitle}</p>
-            <h1>
-              <span>{metadata.hero.groom}</span>
-            </h1>
-            <span className="ampersand">{metadata.hero.ampersand}</span>
-            <h1>
-              <span>{metadata.hero.bride}</span>
-            </h1>
-            <time>{metadata.hero.date}</time>
+            <div className="hero-badge">Wedding Invitation</div>
+            <p className="hero-subtitle">{metadata.hero.subtitle}</p>
+            <div className="hero-names">
+              <h1>
+                <span className="name-script">{metadata.hero.groom}</span>
+              </h1>
+              <span className="ampersand">{metadata.hero.ampersand}</span>
+              <h1>
+                <span className="name-script">{metadata.hero.bride}</span>
+              </h1>
+            </div>
+            <div className="hero-meta">
+              <time>{metadata.hero.date}</time>
+              <span className="hero-divider" />
+              <p>Ninh Bình, Việt Nam</p>
+            </div>
           </div>
         </section>
 
-        <section className="paper save-date">
-          <p className="monogram">
-            T<span>H</span>
-          </p>
+        <section ref={saveDateRef} className="paper save-date">
           <h2 dangerouslySetInnerHTML={{ __html: metadata.saveDate.message }} />
           <div className="save-title">
-            <span>{metadata.saveDate.save}</span>
-            <em>{metadata.saveDate.the}</em>
-            <span>{metadata.saveDate.date}</span>
+            <span className="save-word save">{metadata.saveDate.save}</span>
+            <em className="save-the">{metadata.saveDate.the}</em>
+            <span className="save-word date">{metadata.saveDate.date}</span>
           </div>
-          <time>{metadata.saveDate.time}</time>
-          <div className="stacked-photos">
+          <div className="save-time">
+            <time aria-label={`Date: ${metadata.saveDate.time}`}>{metadata.saveDate.time}</time>
+          </div>
+          <figure className="stacked-photos" aria-hidden="false">
+            <figcaption className="visually-hidden">Wedding portrait photos</figcaption>
             <div className="photo-frame back">
               <Img
                 src={getImageUrl(metadata.images.saveDateBack)}
@@ -279,7 +338,7 @@ export default function WeddingInvite({
                 alt={metadata.imageAlts.weddingPortrait}
               />
             </div>
-          </div>
+          </figure>
         </section>
 
         <Img
@@ -307,12 +366,12 @@ export default function WeddingInvite({
             {metadata.inviteLine.part2}
           </p>
           <h2>
-            {metadata.infoSection.groomName} <span>{metadata.infoSection.and}</span> {metadata.infoSection.brideName}
+            <span className="name-script">{metadata.infoSection.groomName}</span> <span>{metadata.infoSection.and}</span> <span className="name-script">{metadata.infoSection.brideName}</span>
           </h2>
           <div className="event-list">
             {metadata.eventCards.map((card, index) => (
               <EventCard
-                key={index}
+                key={"key-" + index}
                 title={card.title}
                 venue={card.venue}
                 address={card.address}
@@ -338,10 +397,10 @@ export default function WeddingInvite({
           </div>
         </section>
 
-        <section className="paper couple-section">
+        <section ref={coupleSectionRef} className="paper couple-section">
           <div className="person left">
             <p>{metadata.coupleSection.brideLabel}</p>
-            <h2>{metadata.coupleSection.brideName}</h2>
+            <h2 className="name-script">{metadata.coupleSection.brideName}</h2>
           </div>
           <div className="couple-grid">
             <Img
@@ -355,7 +414,7 @@ export default function WeddingInvite({
           </div>
           <div className="person right">
             <p>{metadata.coupleSection.groomLabel}</p>
-            <h2>{metadata.coupleSection.groomName}</h2>
+            <h2 className="name-script">{metadata.coupleSection.groomName}</h2>
           </div>
         </section>
 
@@ -382,7 +441,8 @@ export default function WeddingInvite({
 
         <section className="paper gallery-section">
           <h2>
-            <span>{metadata.gallery.titleParts[0]}</span> of <span>{metadata.gallery.titleParts[2]}</span>
+            <span>{metadata.gallery.titleParts[0]}</span>
+            {metadata.gallery.titleParts[1]}
           </h2>
           <div className="gallery">
             {photos.map((photo, index) => (
@@ -396,7 +456,9 @@ export default function WeddingInvite({
         </section>
 
         <section className="paper guestbook">
-          <h2>{metadata.guestbook.title}</h2>
+          <h2>
+            <span>{metadata.guestbook.prefix}</span> {metadata.guestbook.suffix}
+          </h2>
           <p>{metadata.guestbook.description}</p>
           {!isViewOnly && (
             <form onSubmit={handleGuestbookSubmit}>
@@ -423,31 +485,62 @@ export default function WeddingInvite({
             </form>
           )}
 
-          {guestbook.length > 0 && (
-            <div className="guestbook-list">
-              {guestbook.map((msg) => (
-                <div key={msg.id} className="guestbook-item">
-                  <div className="guestbook-item-header">
-                    <strong>{msg.name}</strong>
-                    <span className="guestbook-item-date">
-                      {new Date(msg.createdAt).toLocaleDateString("vi-VN", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        day: "2-digit",
-                        month: "2-digit",
-                      })}
-                    </span>
+          {guestbook.length > 0 ? (
+            <>
+              <div className="guestbook-summary">
+                <span>
+                  {`Đang hiển thị ${Math.min(visibleGuestbookCount, guestbook.length)} / ${guestbook.length} lời chúc`}
+                </span>
+              </div>
+              <div className="guestbook-list">
+                {visibleGuestbook.map((msg) => (
+                  <div key={msg.id} className="guestbook-item">
+                    <div className="guestbook-item-header">
+                      <strong>{msg.name}</strong>
+                      <span className="guestbook-item-date">
+                        {new Date(msg.createdAt).toLocaleDateString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          day: "2-digit",
+                          month: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <p className="guestbook-item-body">{msg.message}</p>
                   </div>
-                  <p className="guestbook-item-body">{msg.message}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              {visibleGuestbookCount < guestbook.length && (
+                <button type="button" className="guestbook-load-more" onClick={handleLoadMoreGuestbook}>
+                  {metadata.guestbook.loadMoreButton}
+                </button>
+              )}
+            </>
+          ) : (
+            <p className="guestbook-empty">{metadata.guestbook.emptyState}</p>
           )}
           <div className="countdown">
             <h3>{metadata.guestbook.countdownTitle}</h3>
-            <div>
-              <span>{countdown.days}</span>:<span>{countdown.hours}</span>:
-              <span>{countdown.minutes}</span>:<span>{countdown.seconds}</span>
+            <div className="countdown-container">
+              <div className="countdown-unit">
+                <span className="countdown-value">{countdown.days}</span>
+                <span className="countdown-label">Days</span>
+              </div>
+              <div className="countdown-divider">:</div>
+              <div className="countdown-unit">
+                <span className="countdown-value">{countdown.hours}</span>
+                <span className="countdown-label">Hours</span>
+              </div>
+              <div className="countdown-divider">:</div>
+              <div className="countdown-unit">
+                <span className="countdown-value">{countdown.minutes}</span>
+                <span className="countdown-label">Minutes</span>
+              </div>
+              <div className="countdown-divider">:</div>
+              <div className="countdown-unit">
+                <span className="countdown-value">{countdown.seconds}</span>
+                <span className="countdown-label">Seconds</span>
+              </div>
             </div>
           </div>
         </section>
@@ -472,11 +565,12 @@ export default function WeddingInvite({
       >
         🎁
       </button>
+
+      
       <button
-        className={`audio-button ${isMusicPlaying ? "playing" : ""} left`}
+        className={`audio-button ${isMusicPlaying ? "playing" : ""}`}
         onClick={toggleMusic}
         aria-label={metadata.floatingButtons.ariaLabel}
-        style={{ width: '60px', height: '60px' }}
       >
         ♪
       </button>
@@ -564,7 +658,7 @@ function EventCard({
   year,
   lunar,
   mapUrl,
-}: {
+}: Readonly<{
   title: string;
   venue: string;
   address: string;
@@ -574,7 +668,7 @@ function EventCard({
   year?: string;
   lunar?: string;
   mapUrl?: string;
-}) {
+}>) {
   return (
     <article className="event-card">
       <p>
@@ -610,13 +704,19 @@ function Modal({
   title,
   children,
   onClose,
-}: {
+}: Readonly<{
   title: string;
   children: React.ReactNode;
   onClose: () => void;
-}) {
+}>) {
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true">
+    <dialog
+      className="modal-backdrop"
+      aria-modal="true"
+      open={true}
+      onClose={onClose}
+      onCancel={onClose}
+    >
       <div className="modal">
         <div className="modal-header">
           <h2>{title}</h2>
@@ -626,11 +726,11 @@ function Modal({
         </div>
         {children}
       </div>
-    </div>
+    </dialog>
   );
 }
 
-function Gift({ name, src }: { name: string; src: string }) {
+function Gift({ name, src }: Readonly<{ name: string; src: string }>) {
   return (
     <div className="gift-card">
       <h3>{name}</h3>
