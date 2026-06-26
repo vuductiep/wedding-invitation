@@ -1,6 +1,6 @@
 "use client";
 
-import { type SubmitEvent, useEffect, useRef, useState } from "react";
+import { type ComponentPropsWithoutRef, type SubmitEvent, useEffect, useRef, useState } from "react";
 import { submitRSVP, submitGuestbookMessage } from "./actions";
 import metadata from "./metadata.json";
 
@@ -50,12 +50,15 @@ function Img({
   src,
   alt,
   className,
+  style,
+  ...props
 }: Readonly<{
   src: string;
   alt: string;
   className?: string;
-}>) {
-  return <img className={className} src={src} alt={alt} loading="lazy" />;
+  style?: ComponentPropsWithoutRef<"img">["style"];
+} & ComponentPropsWithoutRef<"img">>) {
+  return <img className={className} src={src} alt={alt} loading="lazy" style={style} {...props} />;
 }
 
 export default function WeddingInvite({
@@ -80,8 +83,6 @@ export default function WeddingInvite({
   const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const saveDateRef = useRef<HTMLElement | null>(null);
-  const coupleSectionRef = useRef<HTMLElement | null>(null);
 
   const [countdown, setCountdown] = useState({
     days: "00",
@@ -96,7 +97,7 @@ export default function WeddingInvite({
   }, [initialGuestbook]);
 
   useEffect(() => {
-    const elements = [saveDateRef.current, coupleSectionRef.current].filter(Boolean) as HTMLElement[];
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
 
     if (elements.length === 0) {
       return;
@@ -107,12 +108,11 @@ export default function WeddingInvite({
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-visible");
-          } else {
-            entry.target.classList.remove("is-visible");
+            observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.2, rootMargin: "0px 0px -8% 0px" }
     );
 
     elements.forEach((element) => observer.observe(element));
@@ -294,7 +294,7 @@ export default function WeddingInvite({
             backgroundImage: `url(${getImageUrl(metadata.images.heroBg)})`,
           }}
         >
-          <div className="hero-content">
+          <div className="hero-content scroll-reveal" data-reveal>
             <div className="hero-badge">Wedding Invitation</div>
             <p className="hero-subtitle">{metadata.hero.subtitle}</p>
             <div className="hero-names">
@@ -314,7 +314,7 @@ export default function WeddingInvite({
           </div>
         </section>
 
-        <section ref={saveDateRef} className="paper save-date">
+        <section className="paper save-date scroll-reveal" data-reveal>
           <h2 dangerouslySetInnerHTML={{ __html: metadata.saveDate.message }} />
           <div className="save-title">
             <span className="save-word save">{metadata.saveDate.save}</span>
@@ -347,7 +347,7 @@ export default function WeddingInvite({
           alt={metadata.imageAlts.weddingCouple}
         />
 
-        <section className="paper info-section">
+        <section className="paper info-section scroll-reveal" data-reveal>
           <div className="parents">
             <div>
               <strong>{metadata.parents.groomSide.title}</strong>
@@ -372,6 +372,7 @@ export default function WeddingInvite({
             {metadata.eventCards.map((card, index) => (
               <EventCard
                 key={"key-" + index}
+                delay={index * 110}
                 title={card.title}
                 venue={card.venue}
                 address={card.address}
@@ -386,7 +387,7 @@ export default function WeddingInvite({
           </div>
         </section>
 
-        <section className="story">
+        <section className="story scroll-reveal" data-reveal>
           <Img
             src={getImageUrl(metadata.images.story)}
             alt={metadata.imageAlts.coupleStory}
@@ -397,7 +398,7 @@ export default function WeddingInvite({
           </div>
         </section>
 
-        <section ref={coupleSectionRef} className="paper couple-section">
+        <section className="paper couple-section scroll-reveal" data-reveal>
           <div className="person left">
             <p>{metadata.coupleSection.brideLabel}</p>
             <h2 className="name-script">{metadata.coupleSection.brideName}</h2>
@@ -424,13 +425,13 @@ export default function WeddingInvite({
           alt={metadata.imageAlts.weddingCouple}
         />
 
-        <section className="paper timeline-section">
+        <section className="paper timeline-section scroll-reveal" data-reveal>
           <h2>
             <span>{metadata.timelineSection.prefix}</span> {metadata.timelineSection.suffix}
           </h2>
           <div className="timeline">
-            {timeline.map(([time, text]) => (
-              <div className="timeline-item" key={time}>
+            {timeline.map(([time, text], index) => (
+              <div className="timeline-item scroll-reveal" data-reveal style={{ transitionDelay: `${index * 90}ms` }} key={time}>
                 <div className="timeline-icon">✦</div>
                 <strong>{time}</strong>
                 <p>{text}</p>
@@ -439,7 +440,7 @@ export default function WeddingInvite({
           </div>
         </section>
 
-        <section className="paper gallery-section">
+        <section className="paper gallery-section scroll-reveal" data-reveal>
           <h2>
             <span>{metadata.gallery.titleParts[0]}</span>
             {metadata.gallery.titleParts[1]}
@@ -448,6 +449,9 @@ export default function WeddingInvite({
             {photos.map((photo, index) => (
               <Img
                 key={photo}
+                className="scroll-reveal"
+                data-reveal
+                style={{ transitionDelay: `${index * 80}ms` }}
                 src={getImageUrl(photo)}
                 alt={`Wedding album ${index + 1}`} /* We could make this dynamic but keep simple */
               />
@@ -455,7 +459,7 @@ export default function WeddingInvite({
           </div>
         </section>
 
-        <section className="paper guestbook">
+        <section className="paper guestbook scroll-reveal" data-reveal>
           <h2>
             <span>{metadata.guestbook.prefix}</span> {metadata.guestbook.suffix}
           </h2>
@@ -493,8 +497,8 @@ export default function WeddingInvite({
                 </span>
               </div>
               <div className="guestbook-list">
-                {visibleGuestbook.map((msg) => (
-                  <div key={msg.id} className="guestbook-item">
+                {visibleGuestbook.map((msg, index) => (
+                  <div key={msg.id} className="guestbook-item scroll-reveal" data-reveal style={{ transitionDelay: `${index * 70}ms` }}>
                     <div className="guestbook-item-header">
                       <strong>{msg.name}</strong>
                       <span className="guestbook-item-date">
@@ -519,7 +523,7 @@ export default function WeddingInvite({
           ) : (
             <p className="guestbook-empty">{metadata.guestbook.emptyState}</p>
           )}
-          <div className="countdown">
+          <div className="countdown scroll-reveal" data-reveal>
             <h3>{metadata.guestbook.countdownTitle}</h3>
             <div className="countdown-container">
               <div className="countdown-unit">
@@ -545,7 +549,7 @@ export default function WeddingInvite({
           </div>
         </section>
 
-        <section className="thanks">
+        <section className="thanks scroll-reveal" data-reveal>
           <Img
             src={getImageUrl(metadata.images.thankYou)}
             alt={metadata.imageAlts.thankYou}
@@ -660,6 +664,7 @@ function EventCard({
   year,
   lunar,
   mapUrl,
+  delay = 0,
 }: Readonly<{
   title: string;
   venue: string;
@@ -670,9 +675,10 @@ function EventCard({
   year?: string;
   lunar?: string;
   mapUrl?: string;
+  delay?: number;
 }>) {
   return (
-    <article className="event-card">
+    <article className="event-card scroll-reveal" data-reveal style={{ transitionDelay: `${delay}ms` }}>
       <p>
         {title}
         {time && (

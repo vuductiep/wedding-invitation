@@ -39,6 +39,19 @@ img {
   max-width: 100%;
 }
 
+.scroll-reveal {
+  opacity: 0;
+  transform: translate3d(0, 36px, 0) scale(0.98);
+  transition: opacity 800ms cubic-bezier(0.22, 0.61, 0.36, 1), transform 800ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
 .site-shell {
   min-height: 100vh;
 }
@@ -752,9 +765,12 @@ img {
   .save-date.is-visible .photo-frame.back,
   .save-date.is-visible .photo-frame.front,
   .couple-section.is-visible .couple-grid img:first-child,
-  .couple-section.is-visible .couple-grid img:last-child {
+  .couple-section.is-visible .couple-grid img:last-child,
+  .scroll-reveal {
     animation: none;
     opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
