@@ -14,6 +14,7 @@ export default async function Home() {
       .catch(() => null),
     prisma.guestbookMessage
       .findMany({
+        where: { approved: true },
         orderBy: { createdAt: "desc" },
       })
       .catch(() => []),

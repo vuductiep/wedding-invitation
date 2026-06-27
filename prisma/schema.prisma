@@ -27,6 +27,7 @@ model GuestbookMessage {
   createdAt DateTime @default(now())
   guest     Guest?   @relation("GuestGuestbookMessages", fields: [guestId], references: [id])
   guestId   String?
+  approved  Boolean  @default(true)
 
   @@unique([guestId])
 }

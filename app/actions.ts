@@ -197,8 +197,8 @@ export async function submitGuestbookMessage(name: string, message: string, gues
       // Upsert: update if exists, else create
       const upserted = await prisma.guestbookMessage.upsert({
         where: { guestId: guestId },
-        update: { name, message },
-        create: { name, message, guestId },
+        update: { name, message, approved: false },
+        create: { name, message, guestId, approved: false },
       });
 
       revalidatePath("/", "layout");
@@ -214,7 +214,7 @@ export async function submitGuestbookMessage(name: string, message: string, gues
     } else {
       // No guest slug -> create new anonymous message
       const newMsg = await prisma.guestbookMessage.create({
-        data: { name, message },
+        data: { name, message, approved: false },
       });
 
       revalidatePath("/", "layout");
