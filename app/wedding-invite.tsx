@@ -68,12 +68,26 @@ function Img({
 export default function WeddingInvite({
   guest = defaultGuest,
   initialGuestbook = [],
-  isViewOnly = false,
+  isAnonymous = false,
+  allowAnonymousGuestbookComments = false,
 }: Readonly<{
   guest?: GuestInvite;
   initialGuestbook?: GuestbookMessage[];
-  isViewOnly?: boolean;
+  /**
+   * True when the visitor arrived without a valid invite slug (e.g. the
+   * home page). Anonymous visitors can read the guestbook, may leave a
+   * guestbook entry only when `allowAnonymousGuestbookComments` is true,
+   * and must never see an RSVP entry point.
+   */
+  isAnonymous?: boolean;
+  allowAnonymousGuestbookComments?: boolean;
 }>) {
+  // Anonymous visitors may write to the guestbook only when the env flag
+  // allows it. Valid (invited) guests can always write.
+  const canSubmitGuestbook = !isAnonymous || allowAnonymousGuestbookComments;
+  // Only invited guests may RSVP. Anonymous visitors never see a way to
+  // confirm attendance regardless of any other flag.
+  const canRsvp = !isAnonymous;
   const [opened, setOpened] = useState(false);
   const [giftOpen, setGiftOpen] = useState(false);
   const [rsvpOpen, setRsvpOpen] = useState(false);
@@ -105,7 +119,11 @@ export default function WeddingInvite({
   }, [initialGuestbook]);
 
   useEffect(() => {
-    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    // Re-scan after every render that touches the guestbook list (new message,
+    // "load more" pagination) so newly-added [data-reveal] elements become
+    // visible — otherwise they stay at opacity: 0 forever since the observer
+    // only ran once on initial mount.
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]:not(.is-visible)"));
 
     if (elements.length === 0) {
       return;
@@ -126,7 +144,7 @@ export default function WeddingInvite({
     elements.forEach((element) => observer.observe(element));
 
     return () => observer.disconnect();
-  }, []);
+  }, [guestbook, visibleGuestbookCount]);
 
   useEffect(() => {
     const targetDate = metadata.guestbook.countdownTarget || "2026-07-29T10:30:00+07:00";
@@ -310,11 +328,16 @@ export default function WeddingInvite({
     const formData = new FormData(form);
     const nameVal = formData.get("name") as string;
     const messageVal = formData.get("message") as string;
+    const websiteVal = formData.get("website") as string;
 
-    // Use guest name if name input is empty, otherwise use the input value as alias
-    const finalName = nameVal.trim() === "" ? guest.name : nameVal.trim();
+    // Use guest name if anonymous comments are not allowed and name is empty.
+    // If anonymous comments are allowed and the name is empty, use an "Anonymous" label.
+    const anonymousLabel = (metadata.guestbook as any).anonymousLabel ?? "Ẩn danh";
+    const finalName = nameVal.trim() === ""
+      ? (allowAnonymousGuestbookComments ? anonymousLabel : guest.name)
+      : nameVal.trim();
 
-    const result = await submitGuestbookMessage(finalName, messageVal, guest.slug);
+    const result = await submitGuestbookMessage(finalName, messageVal, guest.slug, websiteVal);
     setIsSubmittingGuestbook(false);
 
     if (result.success && result.message) {
@@ -574,13 +597,14 @@ export default function WeddingInvite({
             <span>{metadata.guestbook.prefix}</span> {metadata.guestbook.suffix}
           </h2>
           <p>{metadata.guestbook.description}</p>
-          {!isViewOnly && (
+          {canSubmitGuestbook && (
             <form onSubmit={handleGuestbookSubmit}>
               <input
                 name="name"
                 defaultValue={guest.name}
                 placeholder={metadata.guestbook.inputPlaceholder}
                 disabled={isSubmittingGuestbook}
+                required
               />
               <textarea
                 name="message"
@@ -588,13 +612,24 @@ export default function WeddingInvite({
                 required
                 disabled={isSubmittingGuestbook}
               />
+              {/* Honeypot field to catch bots */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                style={{ position: 'absolute', left: '-9999px' }}
+                aria-hidden="true"
+              />
               <div className="form-actions">
                 <button type="submit" disabled={isSubmittingGuestbook}>
                   {isSubmittingGuestbook ? metadata.guestbook.submittingLabel : metadata.guestbook.submitButton}
                 </button>
-                <button type="button" onClick={() => setRsvpOpen(true)} disabled={isSubmittingGuestbook}>
-                  {metadata.guestbook.rsvpButton}
-                </button>
+                {canRsvp && (
+                  <button type="button" onClick={() => setRsvpOpen(true)} disabled={isSubmittingGuestbook}>
+                    {metadata.guestbook.rsvpButton}
+                  </button>
+                )}
               </div>
             </form>
           )}
@@ -756,11 +791,10 @@ export default function WeddingInvite({
       )}
 
       {selectedPhotoIndex !== null && photos.length > 0 && (
-        <div
+        <dialog
           className="gallery-lightbox"
-          role="dialog"
-          aria-modal="true"
           aria-label="Photo gallery"
+          open
           onClick={closeGalleryPhoto}
           onTouchStart={handleGalleryTouchStart}
           onTouchMove={handleGalleryTouchMove}
@@ -789,7 +823,7 @@ export default function WeddingInvite({
               <p>Swipe left or right to browse more photos.</p>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
 
       {toast && <div className="toast">{toast}</div>}

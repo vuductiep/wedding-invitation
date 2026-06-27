@@ -22,11 +22,23 @@ export default async function GuestInvitePage({
   params: Promise<{ guestSlug: string }>;
 }) {
   const { guestSlug } = await params;
+  // Next.js 16 may pass URL-encoded slugs (e.g. "b%E1%BA%A1n" for "bạn")
+  // without decoding them. The DB stores the decoded UTF-8 form, so look
+  // up by the decoded slug.
+  const decodedSlug = (() => {
+    try {
+      return decodeURIComponent(guestSlug);
+    } catch {
+      return guestSlug;
+    }
+  })();
+  const allowAnonymousGuestbookComments =
+    process.env.ALLOW_ANONYMOUS_GUESTBOOK_COMMENTS === "true";
 
   // Fetch guest and guestbook messages in parallel
   const [guest, guestbookMessages] = await Promise.all([
     prisma.guest.findUnique({
-      where: { slug: guestSlug },
+      where: { slug: decodedSlug },
     }),
     prisma.guestbookMessage.findMany({
       orderBy: { createdAt: "desc" },
@@ -46,6 +58,8 @@ export default async function GuestInvitePage({
         message: msg.message,
         createdAt: msg.createdAt.toISOString(),
       }))}
+      allowAnonymousGuestbookComments={allowAnonymousGuestbookComments}
+      isAnonymous={false}
     />
   );
 }

@@ -131,7 +131,7 @@
     "prefix": "Sổ lưu bút",
     "suffix": "Guestbook",
     "description": "Cảm ơn bạn rất nhiều vì đã gửi những lời chúc mừng tốt đẹp nhất đến đám cưới của chúng tôi!",
-    "inputPlaceholder": "Nhập tên của bạn",
+    "inputPlaceholder": "Nhập tên của bạn*",
     "textareaPlaceholder": "Nhập lời chúc của bạn*",
     "submitButton": "Gửi",
     "rsvpButton": "Xác nhận tham dự",

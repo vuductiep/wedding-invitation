@@ -2,6 +2,9 @@ import { prisma } from "../lib/prisma";
 import WeddingInvite from "./wedding-invite";
 
 export default async function Home() {
+  const allowAnonymousGuestbookComments =
+    process.env.ALLOW_ANONYMOUS_GUESTBOOK_COMMENTS === "true";
+
   // Resiliently fetch default guest and guestbook messages
   const [defaultGuest, guestbookMessages] = await Promise.all([
     prisma.guest
@@ -31,7 +34,8 @@ export default async function Home() {
         message: msg.message,
         createdAt: msg.createdAt.toISOString(),
       }))}
-      isViewOnly={true}
+      isAnonymous={true}
+      allowAnonymousGuestbookComments={allowAnonymousGuestbookComments}
     />
   );
 }
