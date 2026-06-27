@@ -301,48 +301,55 @@ function StatCard({ label, value, loading, bar, iconBg, iconColor, iconPath }: {
 
 /* ─── DeleteDialog ── */
 function DeleteDialog({ candidate, onCancel, onConfirm }: { candidate: Msg; onCancel: () => void; onConfirm: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const d = ref.current;
-    if (!d) return;
-    if (!d.open) d.showModal();
     btnRef.current?.focus();
-    return () => { if (d.open) d.close(); };
-  }, []);
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCancel();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onCancel]);
 
   return (
-    <dialog
-      ref={ref}
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="del-title"
-      aria-describedby="del-desc"
-      onClose={onCancel}
-      onCancel={(e) => { e.preventDefault(); onCancel(); }}
-      onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
-      className="admin-dialog"
-    >
-      <div className="admin-dialog-inner">
-        <div className="admin-dialog-mark" aria-hidden>
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-          </svg>
-        </div>
-        <h2 id="del-title" className="admin-dialog-title">Delete this message?</h2>
-        <p id="del-desc" className="admin-dialog-desc">
-          Permanently removes the message from <strong>{candidate.name}</strong>. This cannot be undone.
-        </p>
-        <div className="admin-dialog-quote">
-          &ldquo;{candidate.message}&rdquo;
-        </div>
-        <div className="admin-dialog-actions">
-          <button onClick={onCancel} className="admin-button-ghost">Cancel</button>
-          <button ref={btnRef} onClick={onConfirm} className="admin-button-danger">
-            Delete
-          </button>
+    <div className="admin-dialog-backdrop" role="presentation" onClick={onCancel}>
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="del-title"
+        aria-describedby="del-desc"
+        className="admin-dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="admin-dialog-inner">
+          <div className="admin-dialog-mark" aria-hidden>
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <h2 id="del-title" className="admin-dialog-title">Delete this message?</h2>
+          <p id="del-desc" className="admin-dialog-desc">
+            Permanently removes the message from <strong>{candidate.name}</strong>. This cannot be undone.
+          </p>
+          <div className="admin-dialog-quote">
+            &ldquo;{candidate.message}&rdquo;
+          </div>
+          <div className="admin-dialog-actions">
+            <button type="button" onClick={onCancel} className="admin-button-ghost">Cancel</button>
+            <button type="button" ref={btnRef} onClick={onConfirm} className="admin-button-danger">
+              Delete
+            </button>
+          </div>
         </div>
       </div>
-    </dialog>
+    </div>
   );
 }
