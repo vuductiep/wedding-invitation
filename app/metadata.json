@@ -39,9 +39,9 @@
     "part2": "Tham dự bữa tiệc chung vui cùng gia đình!"
   },
   "infoSection": {
-    "groomName": "Đức Tiệp",
+    "groomName": "Vũ Đức Tiệp",
     "and": "and",
-    "brideName": "Quỳnh Mai"
+    "brideName": "Trịnh Quỳnh Mai"
   },
   "parents": {
     "groomSide": {
@@ -51,8 +51,8 @@
     },
     "brideSide": {
       "title": "Nhà gái",
-      "father": "Ông: Hạnh",
-      "mother": "Bà: Phương"
+      "father": "Ông: Trịnh Văn Hạnh",
+      "mother": "Bà: Đoàn Thị Lâm Phương"
     }
   },
   "eventCards": [
@@ -71,7 +71,7 @@
       "title": "Tiệc cưới nhà gái được tổ chức",
       "venue": "Tư gia nhà gái",
       "address": "Thôn Yên Cư 2, xã Yên Khánh, tỉnh Ninh Bình",
-      "time": "12:00, Chủ nhật",
+      "time": "11:00, Chủ nhật",
       "month": "THÁNG 07",
       "day": "26",
       "year": "NĂM 2026",
@@ -120,10 +120,10 @@
       "0Q0A5334.jpg",
       "0Q0A4647.jpg",
       "anhto2.jpg",
-      "0Q0A4457.jpg",
-      "0Q0A4725.jpg",
       "0Q0A5021x.jpg",
-      "0Q0A5051x.jpg"
+      "0Q0A5051x.jpg",
+      "0Q0A4457.jpg",
+      "0Q0A4725.jpg"
     ]
   },
   "guestbook": {

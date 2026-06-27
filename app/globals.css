@@ -266,6 +266,10 @@ img {
   font-weight: 700;
 }
 
+.guest-card h1.name-script {
+  font-size: x-large;
+}
+
 .hero h1 {
   margin: 0;
   display: grid;
@@ -651,7 +655,7 @@ img {
 .story h2,
 .thanks h2 {
   margin: 18px 0 0;
-  font-size: 66px;
+  font-size: 55px;
   line-height: 0.85;
 }
 
