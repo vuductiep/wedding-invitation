@@ -825,6 +825,69 @@ img {
   margin-bottom: 6px;
 }
 
+.giftbox-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 54px 20px;
+}
+
+.giftbox-section img {
+  width: 140px;
+  height: auto;
+  cursor: pointer;
+  margin: 10px auto 0;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: giftbox-float 3s ease-in-out infinite, giftbox-shake 6s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.giftbox-section img:hover {
+  animation: giftbox-wiggle 0.5s ease-in-out infinite;
+  transform: scale(1.15);
+}
+
+@keyframes giftbox-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes giftbox-shake {
+  0%, 90%, 100% {
+    transform: rotate(0deg);
+  }
+  92% {
+    transform: rotate(-6deg) scale(1.02);
+  }
+  94% {
+    transform: rotate(6deg) scale(1.02);
+  }
+  96% {
+    transform: rotate(-4deg) scale(1.02);
+  }
+  98% {
+    transform: rotate(4deg) scale(1.02);
+  }
+}
+
+@keyframes giftbox-wiggle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1.15);
+  }
+  25% {
+    transform: rotate(-8deg) scale(1.15);
+  }
+  75% {
+    transform: rotate(8deg) scale(1.15);
+  }
+}
+
 .timeline {
   display: grid;
   gap: 18px;
