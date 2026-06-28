@@ -720,7 +720,7 @@ export default function WeddingInvite({
         <Modal title={metadata.modals.gift.title} onClose={() => setGiftOpen(false)}>
           <div className="gift-grid">
             <Gift name={metadata.modals.gift.groomName} src={getImageUrl(metadata.images.groomQR)} />
-            <Gift name={metadata.modals.gift.brideName} src={getImageUrl(metadata.images.brideQR)} />
+            <Gift name={metadata.modals.gift.brideName} src={getImageUrl(metadata.images.bribeQR)} />
           </div>
         </Modal>
       )}
