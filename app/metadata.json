@@ -57,17 +57,6 @@
   },
   "eventCards": [
     {
-      "title": "Tiệc cưới nhà trai được tổ chức",
-      "venue": "Nhà hàng Khoa Phương",
-      "address": "Số 04, đường Nguyễn Khuyến, tổ 11, phường Trung Sơn, tỉnh Ninh Bình",
-      "time": "10:30, Thứ Tư",
-      "month": "THÁNG 07",
-      "day": "29",
-      "year": "NĂM 2026",
-      "lunar": "(Tức ngày 16 tháng 06 năm Bính Ngọ)",
-      "mapUrl": "https://maps.app.goo.gl/hHhW179LmHivFZceA"
-    },
-    {
       "title": "Tiệc cưới nhà gái được tổ chức",
       "venue": "Tư gia nhà gái",
       "address": "Thôn Yên Cư 2, xã Yên Khánh, tỉnh Ninh Bình",
@@ -77,6 +66,17 @@
       "year": "NĂM 2026",
       "lunar": "(Tức ngày 13 tháng 06 năm Bính Ngọ)",
       "mapUrl": "https://maps.app.goo.gl/c2DmBz8R6TAzENSZA"
+    },
+    {
+      "title": "Lễ thành hôn được tổ chức tại nhà trai ",
+      "venue": "Nhà hàng Khoa Phương",
+      "address": "Số 04, đường Nguyễn Khuyến, tổ 11, phường Trung Sơn, tỉnh Ninh Bình",
+      "time": "10:30, Thứ Tư",
+      "month": "THÁNG 07",
+      "day": "29",
+      "year": "NĂM 2026",
+      "lunar": "(Tức ngày 16 tháng 06 năm Bính Ngọ)",
+      "mapUrl": "https://maps.app.goo.gl/hHhW179LmHivFZceA"
     }
   ],
   "story": {
@@ -116,12 +116,10 @@
       "Love"
     ],
     "photos": [
-      "0Q0A4905.jpg",
+      "0Q0A5051x.jpg",
       "0Q0A5334.jpg",
       "0Q0A4647.jpg",
-      "anhto2.jpg",
       "0Q0A5021x.jpg",
-      "0Q0A5051x.jpg",
       "0Q0A4457.jpg",
       "0Q0A4725.jpg"
     ]
@@ -157,10 +155,10 @@
     "saveDateBack": "0Q0A4764.jpg",
     "saveDateFront": "0Q0A4647.jpg",
     "fullPhoto1": "0Q0A4332.jpg",
-    "story": "0Q0A5021x.jpg",
-    "coupleLeft": "0Q0A4613.jpg",
-    "coupleRight": "0Q0A4854.jpg",
-    "fullPhoto2": "0Q0A4576deban.jpg",
+    "story": "0Q0A4576deban.jpg",
+    "coupleLeft": "0Q0A4854.jpg",
+    "coupleRight": "0Q0A4613.jpg",
+    "fullPhoto2": "0Q0A5021x.jpg",
     "thankYou": "anhto1.jpg",
     "groomQR": "groom_qr.jpg",
     "brideQR": "bride_qr.jpg"

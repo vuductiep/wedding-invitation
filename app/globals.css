@@ -157,7 +157,7 @@ img {
 .guest-card h2 {
   margin: 8px 0 14px;
   font-size: 32px;
-  color: var(--primary-dark);
+  color: black;
 }
 
 .host-message {
@@ -339,6 +339,28 @@ img {
   color: var(--primary);
 }
 
+.paper-timeline {
+  position: relative;
+  padding: 0 20px;
+  background:
+          linear-gradient(rgba(255, 248, 237, 0.94), rgba(255, 248, 237, 0.94)),
+          repeating-linear-gradient(45deg, transparent 0 12px, rgba(141, 95, 37, 0.045) 12px 13px);
+  color: var(--primary);
+}
+
+.paper-gift {
+  position: relative;
+  padding: 0 20px;
+  background:
+          linear-gradient(rgba(255, 248, 237, 0.94), rgba(255, 248, 237, 0.94)),
+          repeating-linear-gradient(45deg, transparent 0 12px, rgba(141, 95, 37, 0.045) 12px 13px);
+  color: var(--primary);
+}
+
+.paper-gift h2 span {
+  text-align: center;
+}
+
 .save-date {
   text-align: center;
   padding-top: 6px;
@@ -398,15 +420,6 @@ img {
   font-size: 22px;
   font-weight: 700;
   color: var(--primary-dark);
-}
-
-.stacked-photos {
-  position: relative;
-  /* Ensure absolutely-positioned photo frames are fully contained
-     so they don't overlap the next section */
-  min-height: 420px;
-  margin-top: 6px;
-  padding-bottom: 26px;
 }
 
 .photo-frame {
@@ -507,14 +520,14 @@ img {
 .parents {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 8px;
   text-align: center;
   font-size: 14px;
 }
 
 .parents > div + div {
   border-left: 1px solid rgba(141, 95, 37, 0.36);
-  padding-left: 18px;
+  padding-left: 8px;
 }
 
 .parents p {
@@ -532,7 +545,7 @@ img {
   font-family: 'Caveat', 'Comic Sans MS', 'Segoe Script', cursive;
   font-size: 22px;
   font-weight: 400;
-  color: var(--primary);
+  color: black;
   display: inline-block;
   letter-spacing: 0px;
 }
@@ -704,13 +717,13 @@ img {
 
 .person.right {
   text-align: right;
-  margin-top: 56px;
+  margin-top: 26px;
 }
 
 .couple-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 0;
   align-items: center;
 }
 
@@ -718,7 +731,7 @@ img {
   width: 100%;
   aspect-ratio: 0.72;
   object-fit: cover;
-  border: 10px solid #fff;
+  border: 1px solid #fff;
   box-shadow: 0 14px 35px rgba(67, 42, 16, 0.18);
   will-change: transform;
 }
@@ -776,6 +789,7 @@ img {
   }
 }
 
+.giftbox-section h2,
 .timeline-section h2,
 .gallery-section h2 {
   margin: 0 0 26px;
@@ -795,6 +809,7 @@ img {
   line-height: 1.05;
 }
 
+.giftbox-section h2 span,
 .timeline-section h2 span,
 .gallery-section h2 span,
 .guestbook h2 span {
@@ -963,6 +978,7 @@ img {
 
 .guestbook {
   text-align: center;
+  display: none;
 }
 
 .guestbook > p {
@@ -1321,13 +1337,11 @@ img {
   }
 
   .parents {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .parents > div + div {
     border-left: 0;
-    border-top: 1px solid rgba(141, 95, 37, 0.36);
-    padding: 18px 0 0;
   }
 
   .date-box {
@@ -1517,7 +1531,7 @@ img {
   }
 
   .couple-section .person h2 {
-    font-size: 42px;
+    font-size: 32px;
   }
 
   .countdown h3 {

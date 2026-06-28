@@ -436,31 +436,39 @@ export default function WeddingInvite({
           </div>
         </section>
 
-        <section className="paper save-date scroll-reveal" data-reveal>
-          <h2 dangerouslySetInnerHTML={{ __html: metadata.saveDate.message }} />
-          <div className="save-title">
-            <span className="save-word save">{metadata.saveDate.save}</span>
-            <em className="save-the">{metadata.saveDate.the}</em>
-            <span className="save-word date">{metadata.saveDate.date}</span>
-          </div>
-          <div className="save-time">
-            <time aria-label={`Date: ${metadata.saveDate.time}`}>{metadata.saveDate.time}</time>
-          </div>
-          <figure className="stacked-photos" aria-hidden="false">
-            <figcaption className="visually-hidden">Wedding portrait photos</figcaption>
-            <div className="photo-frame back">
-              <Img
-                src={getImageUrl(metadata.images.saveDateBack)}
-                alt={metadata.imageAlts.weddingPortrait}
-              />
+        <section className="paper couple-section scroll-reveal" data-reveal>
+          <section className="paper save-date scroll-reveal" data-reveal>
+            <h2 dangerouslySetInnerHTML={{ __html: metadata.saveDate.message }} />
+            <div className="save-title">
+              <span className="save-word save">{metadata.saveDate.save}</span>
+              <em className="save-the">{metadata.saveDate.the}</em>
+              <span className="save-word date">{metadata.saveDate.date}</span>
             </div>
-            <div className="photo-frame front">
-              <Img
-                src={getImageUrl(metadata.images.saveDateFront)}
-                alt={metadata.imageAlts.weddingPortrait}
-              />
+            <div className="save-time">
+              <time aria-label={`Date: ${metadata.saveDate.time}`}>{metadata.saveDate.time}</time>
             </div>
-          </figure>
+          </section>
+
+          <div className="couple-grid">
+            <div className="person left">
+              <p>{metadata.coupleSection.groomLabel}</p>
+              <h2 className="name-script">{metadata.coupleSection.groomName}</h2>
+            </div>
+            <div className="person right">
+              <p>{metadata.coupleSection.brideLabel}</p>
+              <h2 className="name-script">{metadata.coupleSection.brideName}</h2>
+            </div>
+          </div>
+          <div className="couple-grid">
+            <Img
+                src={getImageUrl(metadata.images.coupleLeft)}
+                alt={metadata.imageAlts.weddingPortrait}
+            />
+            <Img
+                src={getImageUrl(metadata.images.coupleRight)}
+                alt={metadata.imageAlts.weddingPortrait}
+            />
+          </div>
         </section>
 
         <Img
@@ -511,6 +519,21 @@ export default function WeddingInvite({
           </div>
         </section>
 
+        <section className="paper-timeline timeline-section scroll-reveal" data-reveal>
+          <h2>
+            <span>{metadata.timelineSection.prefix}</span> {metadata.timelineSection.suffix}
+          </h2>
+          <div className="timeline">
+            {timeline.map(([time, text], index) => (
+                <div className="timeline-item scroll-reveal" data-reveal style={{ transitionDelay: `${index * 90}ms` }} key={time}>
+                  <div className="timeline-icon">✦</div>
+                  <strong>{time}</strong>
+                  <p>{text}</p>
+                </div>
+            ))}
+          </div>
+        </section>
+
         <section className="story scroll-reveal" data-reveal>
           <Img
             src={getImageUrl(metadata.images.story)}
@@ -519,48 +542,6 @@ export default function WeddingInvite({
           <div>
             <p>{metadata.story.content[0]}</p>
             <h2>{metadata.story.title}</h2>
-          </div>
-        </section>
-
-        <section className="paper couple-section scroll-reveal" data-reveal>
-          <div className="person left">
-            <p>{metadata.coupleSection.brideLabel}</p>
-            <h2 className="name-script">{metadata.coupleSection.brideName}</h2>
-          </div>
-          <div className="couple-grid">
-            <Img
-              src={getImageUrl(metadata.images.coupleLeft)}
-              alt={metadata.imageAlts.weddingPortrait}
-            />
-            <Img
-              src={getImageUrl(metadata.images.coupleRight)}
-              alt={metadata.imageAlts.weddingPortrait}
-            />
-          </div>
-          <div className="person right">
-            <p>{metadata.coupleSection.groomLabel}</p>
-            <h2 className="name-script">{metadata.coupleSection.groomName}</h2>
-          </div>
-        </section>
-
-        <Img
-          className="full-photo"
-          src={getImageUrl(metadata.images.fullPhoto2)}
-          alt={metadata.imageAlts.weddingCouple}
-        />
-
-        <section className="paper timeline-section scroll-reveal" data-reveal>
-          <h2>
-            <span>{metadata.timelineSection.prefix}</span> {metadata.timelineSection.suffix}
-          </h2>
-          <div className="timeline">
-            {timeline.map(([time, text], index) => (
-              <div className="timeline-item scroll-reveal" data-reveal style={{ transitionDelay: `${index * 90}ms` }} key={time}>
-                <div className="timeline-icon">✦</div>
-                <strong>{time}</strong>
-                <p>{text}</p>
-              </div>
-            ))}
           </div>
         </section>
 
@@ -590,6 +571,17 @@ export default function WeddingInvite({
               />
             ))}
           </div>
+        </section>
+
+        <section className="paper-gift giftbox-section scroll-reveal" data-reveal>
+          <h2>
+            <span>Hộp mừng cưới</span>
+          </h2>
+          <Img
+              src={getImageUrl("giftbox.png")}
+              alt={"Open wedding gift"}
+              onClick={() => setGiftOpen(true)}
+          />
         </section>
 
         <section className="paper guestbook scroll-reveal" data-reveal>
