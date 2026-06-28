@@ -1230,6 +1230,17 @@ img {
   place-items: center;
   padding: 18px;
   background: rgba(0, 0, 0, 0.62);
+  /* Keep-alive visibility transitions */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-backdrop.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .modal {
@@ -1240,6 +1251,13 @@ img {
   background: #fff;
   border-radius: 10px;
   color: var(--ink);
+  /* Spring-like scaling transition */
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-backdrop.is-active .modal {
+  transform: scale(1) translateY(0);
 }
 
 .modal-header {
@@ -1256,12 +1274,65 @@ img {
 }
 
 .modal-header button {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border: 0;
   border-radius: 50%;
   background: #f3eee6;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--primary);
+  line-height: 1;
+  transition: background 0.2s, transform 0.2s;
+  padding: 0;
+}
+
+.modal-header button:hover,
+.modal-header button:focus-visible {
+  background: #e9decb;
+  transform: scale(1.05);
+}
+
+/* Swipe Indicator for Mobile Modals */
+.modal-swipe-bar {
+  display: none;
+  width: 40px;
+  height: 5px;
+  background: #e2dcd0;
+  border-radius: 3px;
+  margin: -6px auto 12px;
+}
+
+@media (max-width: 768px) {
+  .modal-swipe-bar {
+    display: block;
+  }
+}
+
+/* Footer Close Button */
+.modal-footer-close-button {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+  padding: 12px;
+  background: #f5f0e6;
+  color: var(--primary-dark);
+  border: 1px solid rgba(141, 95, 37, 0.15);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  text-align: center;
+}
+
+.modal-footer-close-button:hover,
+.modal-footer-close-button:focus-visible {
+  background: var(--primary-dark);
+  color: #fff;
 }
 
 .gift-grid {

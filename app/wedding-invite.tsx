@@ -1,6 +1,6 @@
 "use client";
 
-import { type ComponentPropsWithoutRef, type SubmitEvent, type TouchEvent, useEffect, useRef, useState } from "react";
+import React, { type ComponentPropsWithoutRef, type SubmitEvent, type TouchEvent, useEffect, useRef, useState } from "react";
 import { submitRSVP, submitGuestbookMessage } from "./actions";
 import metadata from "./metadata.json";
 
@@ -208,6 +208,27 @@ export default function WeddingInvite({
       setIsMusicPlaying(true);
     }
   }, [opened]);
+
+  // Handle ESC key and body scroll lock for active modals
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setGiftOpen(false);
+        setRsvpOpen(false);
+      }
+    };
+
+    if (giftOpen || rsvpOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = "hidden";
+      
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [giftOpen, rsvpOpen]);
 
   useEffect(() => {
     if (selectedPhotoIndex === null) {
@@ -716,71 +737,75 @@ export default function WeddingInvite({
         ♪
       </button>
 
-      {giftOpen && (
-        <Modal title={metadata.modals.gift.title} onClose={() => setGiftOpen(false)}>
-          <div className="gift-grid">
-            <Gift name={metadata.modals.gift.groomName} src={getImageUrl(metadata.images.groomQR)} />
-            <Gift name={metadata.modals.gift.brideName} src={getImageUrl(metadata.images.bribeQR)} />
-          </div>
-        </Modal>
-      )}
+      <Modal
+        title={metadata.modals.gift.title}
+        isOpen={giftOpen}
+        onClose={() => setGiftOpen(false)}
+      >
+        <div className="gift-grid">
+          <Gift name={metadata.modals.gift.groomName} src={getImageUrl(metadata.images.groomQR)} />
+          <Gift name={metadata.modals.gift.brideName} src={getImageUrl(metadata.images.bribeQR)} />
+        </div>
+      </Modal>
 
-      {rsvpOpen && (
-        <Modal title={metadata.modals.rsvp.title} onClose={() => setRsvpOpen(false)}>
-          <form className="rsvp-form" onSubmit={handleRsvpSubmit}>
-            <p>
-              {metadata.modals.rsvp.guestLabel} <strong>{guest.name}</strong>
-            </p>
-            <label>
-              <input
-                name="attendance"
-                type="radio"
-                value="yes"
-                required
-                defaultChecked={guest.rsvpAttendance === "yes"}
-                onChange={(event) => setAttendance(event.target.value)}
-                disabled={isSubmittingRsvp}
-              />
-              {metadata.modals.rsvp.attendanceYes}
-            </label>
-            <label>
-              <input
-                name="attendance"
-                type="radio"
-                value="no"
-                required
-                defaultChecked={guest.rsvpAttendance === "no"}
-                onChange={(event) => setAttendance(event.target.value)}
-                disabled={isSubmittingRsvp}
-              />
-              {metadata.modals.rsvp.attendanceNo}
-            </label>
-            {attendance === "yes" && (
-              <select
-                name="accompany"
-                defaultValue={guest.rsvpAccompanyCount?.toString() || "0"}
-                aria-label="Accompany count"
-                disabled={isSubmittingRsvp}
-              >
-                {metadata.modals.rsvp.accompanyOptions.map((opt, idx) => (
-                  <option key={"key" + idx} value={idx.toString()}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            )}
-            <textarea
-              name="note"
-              placeholder={metadata.modals.rsvp.textareaPlaceholder}
-              defaultValue={guest.rsvpMessage || ""}
+      <Modal
+        title={metadata.modals.rsvp.title}
+        isOpen={rsvpOpen}
+        onClose={() => setRsvpOpen(false)}
+      >
+        <form className="rsvp-form" onSubmit={handleRsvpSubmit}>
+          <p>
+            {metadata.modals.rsvp.guestLabel} <strong>{guest.name}</strong>
+          </p>
+          <label>
+            <input
+              name="attendance"
+              type="radio"
+              value="yes"
+              required
+              defaultChecked={guest.rsvpAttendance === "yes"}
+              onChange={(event) => setAttendance(event.target.value)}
               disabled={isSubmittingRsvp}
             />
-            <button type="submit" disabled={isSubmittingRsvp}>
-              {isSubmittingRsvp ? metadata.modals.rsvp.submittingLabel : metadata.modals.rsvp.submitButton}
-            </button>
-          </form>
-        </Modal>
-      )}
+            {metadata.modals.rsvp.attendanceYes}
+          </label>
+          <label>
+            <input
+              name="attendance"
+              type="radio"
+              value="no"
+              required
+              defaultChecked={guest.rsvpAttendance === "no"}
+              onChange={(event) => setAttendance(event.target.value)}
+              disabled={isSubmittingRsvp}
+            />
+            {metadata.modals.rsvp.attendanceNo}
+          </label>
+          {attendance === "yes" && (
+            <select
+              name="accompany"
+              defaultValue={guest.rsvpAccompanyCount?.toString() || "0"}
+              aria-label="Accompany count"
+              disabled={isSubmittingRsvp}
+            >
+              {metadata.modals.rsvp.accompanyOptions.map((opt, idx) => (
+                <option key={"key" + idx} value={idx.toString()}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          )}
+          <textarea
+            name="note"
+            placeholder={metadata.modals.rsvp.textareaPlaceholder}
+            defaultValue={guest.rsvpMessage || ""}
+            disabled={isSubmittingRsvp}
+          />
+          <button type="submit" disabled={isSubmittingRsvp}>
+            {isSubmittingRsvp ? metadata.modals.rsvp.submittingLabel : metadata.modals.rsvp.submitButton}
+          </button>
+        </form>
+      </Modal>
 
       {selectedPhotoIndex !== null && photos.length > 0 && (
         <dialog
@@ -884,21 +909,78 @@ function EventCard({
 function Modal({
   title,
   children,
+  isOpen,
   onClose,
 }: Readonly<{
   title: string;
   children: React.ReactNode;
+  isOpen: boolean;
   onClose: () => void;
 }>) {
+  const modalRef = React.useRef<HTMLDivElement>(null);
+  const [startY, setStartY] = React.useState<number | null>(null);
+  const [currentY, setCurrentY] = React.useState<number>(0);
+  const [isSwiping, setIsSwiping] = React.useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const container = modalRef.current;
+    if (!container) return;
+
+    // Only start swiping down if scrolled to the top
+    if (container.scrollTop === 0) {
+      setStartY(e.touches[0].clientY);
+      setIsSwiping(true);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isSwiping || startY === null) return;
+    const deltaY = e.touches[0].clientY - startY;
+    if (deltaY > 0) {
+      setCurrentY(deltaY);
+      if (e.cancelable) e.preventDefault();
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isSwiping) return;
+    setIsSwiping(false);
+    if (currentY > 100) {
+      onClose();
+    }
+    setStartY(null);
+    setCurrentY(0);
+  };
+
+  const transformStyle = isOpen
+    ? isSwiping
+      ? `scale(1) translateY(${currentY}px)`
+      : "scale(1) translateY(0)"
+    : "scale(0.9) translateY(20px)";
+
   return (
-    <dialog
-      className="modal-backdrop"
+    <div
+      className={`modal-backdrop ${isOpen ? "is-active" : ""}`}
+      role="dialog"
       aria-modal="true"
-      open={true}
-      onClose={onClose}
-      onCancel={onClose}
+      aria-hidden={!isOpen}
+      onClick={onClose}
+      style={{ cursor: "pointer" }}
     >
-      <div className="modal">
+      <div
+        ref={modalRef}
+        className="modal"
+        onClick={(event) => event.stopPropagation()}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          cursor: "default",
+          transform: transformStyle,
+          transition: isSwiping ? "none" : undefined,
+        }}
+      >
+        <div className="modal-swipe-bar" />
         <div className="modal-header">
           <h2>{title}</h2>
           <button onClick={onClose} aria-label="Close">
@@ -906,8 +988,11 @@ function Modal({
           </button>
         </div>
         {children}
+        <button type="button" onClick={onClose} className="modal-footer-close-button">
+          Đóng
+        </button>
       </div>
-    </dialog>
+    </div>
   );
 }
 
