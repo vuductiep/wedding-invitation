@@ -46,28 +46,25 @@
   "parents": {
     "groomSide": {
       "title": "Nhà Trai",
-      "father": "Ông: Vũ Việt Dũng",
-      "mother": "Bà: Vũ Bích Thủy"
+      "father": "Bố: Vũ Việt Dũng",
+      "mother": "Mẹ: Vũ Bích Thủy"
     },
     "brideSide": {
       "title": "Nhà gái",
-      "father": "Ông: Trịnh Văn Hạnh",
-      "mother": "Bà: Đoàn Thị Lâm Phương"
+      "father": "Bố: Trịnh Văn Hạnh",
+      "mother": "Mẹ: Đoàn Thị Lâm Phương"
     }
   },
   "eventCards": [
     {
-      "title": "Tiệc cưới nhà gái được tổ chức",
-      "venue": "Tư gia nhà gái",
-      "address": "Thôn Yên Cư 2, xã Yên Khánh, tỉnh Ninh Bình",
-      "time": "10:30, Chủ nhật",
-      "month": "THÁNG 07",
-      "day": "26",
-      "year": "NĂM 2026",
-      "lunar": "",
-      "mapUrl": "https://maps.app.goo.gl/c2DmBz8R6TAzENSZA"
-    },
-    {
+      "subevent": {
+        "title": "Tiệc cưới nhà gái được tổ chức",
+        "venue": "Tư gia nhà gái",
+        "time": "10:30, Chủ nhật",
+        "month": "THÁNG 07",
+        "day": "26",
+        "year": "NĂM 2026"
+      },
       "title": "Lễ Vu Quy được tổ chức",
       "venue": "Tư gia nhà gái",
       "address": "Thôn Yên Cư 2, xã Yên Khánh, tỉnh Ninh Bình",

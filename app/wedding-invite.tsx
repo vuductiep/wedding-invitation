@@ -535,6 +535,7 @@ export default function WeddingInvite({
                 year={card.year}
                 lunar={card.lunar}
                 mapUrl={card.mapUrl}
+                subevent={card?.subevent}
               />
             ))}
           </div>
@@ -863,6 +864,7 @@ function EventCard({
   lunar,
   mapUrl,
   delay = 0,
+  subevent
 }: Readonly<{
   title: string;
   venue: string;
@@ -874,9 +876,39 @@ function EventCard({
   lunar?: string;
   mapUrl?: string;
   delay?: number;
+  subevent?: {
+    title: string;
+    venue?: string;
+    time?: string;
+    month?: string;
+    day?: string;
+    year?: string;
+    lunar?: string;
+    mapUrl?: string;
+    delay?: number;
+  }
 }>) {
   return (
     <article className="event-card scroll-reveal" data-reveal style={{ transitionDelay: `${delay}ms` }}>
+      {subevent && 
+      <div>
+        <p>
+          {subevent.title}
+          {subevent.time && (
+            <>
+              <br />
+              vào lúc <strong>{subevent.time}</strong>
+            </>
+          )}
+        </p>
+        {(subevent.month || subevent.day || subevent.year) && (
+          <div className="date-box">
+            {subevent.month && <span>{subevent.month}</span>}
+            {subevent.day && <strong>{subevent.day}</strong>}
+            {subevent.year && <span>{subevent.year}</span>}
+          </div>
+        )}
+      </div>}
       <p>
         {title}
         {time && (
