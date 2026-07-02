@@ -1,6 +1,6 @@
 "use client";
 
-import React, { type ComponentPropsWithoutRef, type SubmitEvent, type TouchEvent, useEffect, useRef, useState } from "react";
+import React, { type ComponentPropsWithoutRef, type SubmitEvent, type TouchEvent, useCallback, useEffect, useRef, useState } from "react";
 import { submitRSVP, submitGuestbookMessage } from "./actions";
 import metadata from "./metadata.json";
 
@@ -72,6 +72,9 @@ function clamp(value: number, min: number, max: number) {
 
 const photos = metadata.gallery.photos;
 
+// Build full-res URLs once at module level so they can be reused for preloading
+const photoFullUrls = photos.map((p: string) => getImageUrl(p, "full"));
+
 const timeline = metadata.timeline;
 const GUESTBOOK_PAGE_SIZE = 6;
 
@@ -128,7 +131,9 @@ export default function WeddingInvite({
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [zoom, setZoom] = useState(1);
+  const [lightboxImageLoaded, setLightboxImageLoaded] = useState(false);
   const pinchStateRef = useRef<{ distance: number; scale: number } | null>(null);
+  const preloadedImages = useRef<Set<string>>(new Set());
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const [countdown, setCountdown] = useState({
@@ -236,12 +241,56 @@ export default function WeddingInvite({
     }
   }, [giftOpen, rsvpOpen]);
 
+  // Preload a gallery image into the browser cache
+  const preloadImage = useCallback((url: string) => {
+    if (!url || preloadedImages.current.has(url)) return;
+    preloadedImages.current.add(url);
+    const img = new Image();
+    img.src = url;
+  }, []);
+
+  // Background-preload all gallery full-res images once the page is idle.
+  // This uses requestIdleCallback (with a setTimeout fallback) so it doesn't
+  // compete with the initial page paint.
+  useEffect(() => {
+    if (!opened) return;
+
+    const schedule = typeof requestIdleCallback === "function"
+      ? requestIdleCallback
+      : (cb: () => void) => setTimeout(cb, 2000);
+
+    const id = schedule(() => {
+      for (const url of photoFullUrls) {
+        preloadImage(url);
+      }
+    });
+
+    return () => {
+      if (typeof cancelIdleCallback === "function") {
+        cancelIdleCallback(id as number);
+      } else {
+        clearTimeout(id as ReturnType<typeof setTimeout>);
+      }
+    };
+  }, [opened, preloadImage]);
+
+  // Preload adjacent images whenever the selected photo changes
+  useEffect(() => {
+    if (selectedPhotoIndex === null) return;
+
+    const prevIdx = selectedPhotoIndex === 0 ? photos.length - 1 : selectedPhotoIndex - 1;
+    const nextIdx = (selectedPhotoIndex + 1) % photos.length;
+    preloadImage(photoFullUrls[prevIdx]);
+    preloadImage(photoFullUrls[nextIdx]);
+  }, [selectedPhotoIndex, preloadImage]);
+
   useEffect(() => {
     if (selectedPhotoIndex === null) {
       return;
     }
 
     setZoom(1);
+    setLightboxImageLoaded(false);
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -267,6 +316,7 @@ export default function WeddingInvite({
   }, [selectedPhotoIndex]);
 
   const openGalleryPhoto = (index: number) => {
+    setLightboxImageLoaded(false);
     setSelectedPhotoIndex(index);
     setZoom(1);
   };
@@ -832,11 +882,20 @@ export default function WeddingInvite({
               <button type="button" className="gallery-lightbox__nav gallery-lightbox__nav--prev" onClick={showPreviousPhoto} aria-label="Previous photo">
                 ‹
               </button>
+              {!lightboxImageLoaded && (
+                <div className="gallery-lightbox__spinner">
+                  <div className="gallery-lightbox__spinner-ring" />
+                </div>
+              )}
               <img
                 className="gallery-lightbox__image"
-                src={getImageUrl(photos[selectedPhotoIndex], "full")}
+                src={photoFullUrls[selectedPhotoIndex]}
                 alt={`Wedding album ${selectedPhotoIndex + 1}`}
-                style={{ transform: `scale(${zoom})` }}
+                style={{
+                  transform: `scale(${zoom})`,
+                  opacity: lightboxImageLoaded ? 1 : 0,
+                }}
+                onLoad={() => setLightboxImageLoaded(true)}
               />
               <button type="button" className="gallery-lightbox__nav gallery-lightbox__nav--next" onClick={showNextPhoto} aria-label="Next photo">
                 ›
