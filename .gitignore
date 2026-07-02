@@ -17,3 +17,6 @@ dev-server.err.log
 
 # Next.js
 next-env.d.ts
+
+# Cloudinary upload manifest (audit artifact; URL helper is deterministic)
+scripts/.media-manifest.json

@@ -26,13 +26,22 @@ const defaultGuest: GuestInvite = {
   message: "Mời bạn đến chung vui cùng gia đình trong ngày cưới của chúng tôi.",
 };
 
-const mediaBase = "/images";
+// Cloudinary image delivery. The cloud name comes from a NEXT_PUBLIC_ env var
+// so the helper runs in the client bundle. Server-side uploads use the full
+// credentials in scripts/upload-media.ts. If the env var is unset the cloud
+// name becomes "" and URLs render broken — fail loudly in the console.
+const CLOUDINARY_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "";
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
-}
+type ImageVariant = "thumb" | "medium" | "full" | "raw";
 
-function getImageUrl(path?: string) {
+const VARIANT_TRANSFORMS: Record<ImageVariant, string> = {
+  thumb: "f_auto,q_auto,w_400,c_fill",
+  medium: "f_auto,q_auto,w_800",
+  full: "f_auto,q_auto,w_1600",
+  raw: "f_auto,q_auto", // QR codes — no resize, just format negotiation
+};
+
+function getImageUrl(path?: string, variant: ImageVariant = "medium"): string {
   if (!path) return "";
   if (
     path.startsWith("http://") ||
@@ -40,9 +49,25 @@ function getImageUrl(path?: string) {
     path.startsWith("/") ||
     path.startsWith("data:")
   ) {
-    return path;
+    return path; // passthrough — keeps future absolute URLs working
   }
-  return `${mediaBase}/${path}`;
+  const dot = path.lastIndexOf(".");
+  const base = dot >= 0 ? path.slice(0, dot) : path;
+  const ext = dot >= 0 ? path.slice(dot + 1) : "";
+  const publicId = `wedding-invitation/images/${base}`;
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/image/upload/${VARIANT_TRANSFORMS[variant]}/${publicId}.${ext}`;
+}
+
+// Audio is uploaded as resource_type: "video" so Cloudinary streams the .mp3
+// with the original extension. No `f_auto` here — applying transforms to a
+// video resource triggers transcoding we don't want.
+function audioUrl(publicId: string, format: string = "mp3"): string {
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD}/video/upload/${publicId}.${format}`;
+}
+const MUSIC_URL = audioUrl("wedding-invitation/music/wedding-music", "mp3");
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
 }
 
 const photos = metadata.gallery.photos;
@@ -169,34 +194,15 @@ export default function WeddingInvite({
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize audio element
+  // Surface audio load/play errors to the console. The actual <audio> element
+  // (rendered below) owns the src and is the single source of truth for the ref.
   useEffect(() => {
-    // Create audio element if it doesn't exist
-    if (!audioRef.current) {
-      // Try MP3 first, then WAV as fallback
-      const audio = new Audio('/music/wedding-music.mp3');
-      audio.loop = true; // Loop the music
-      audio.volume = 0.3; // Set volume to 50%
-      audioRef.current = audio;
-
-      // Handle audio errors (file not found, etc.)
-      audio.addEventListener('error', (e: Event) => {
-        console.warn('Audio file not found or cannot be played:', e);
-        // Try with .wav extension as fallback
-        const audioWav = new Audio('/music/wedding-music.wav');
-        audioWav.loop = true;
-        audioWav.volume = 0.3;
-        audioRef.current = audioWav;
-      });
-    }
-
-    // Cleanup
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 0.3;
+    const handleError = (e: Event) => console.warn("Audio failed to load or play:", e);
+    audio.addEventListener("error", handleError);
+    return () => audio.removeEventListener("error", handleError);
   }, []);
 
   // Autoplay music when invitation opens
@@ -434,7 +440,7 @@ export default function WeddingInvite({
         <section
           className="hero"
           style={{
-            backgroundImage: `url(${getImageUrl(metadata.images.heroBg)})`,
+            backgroundImage: `url(${getImageUrl(metadata.images.heroBg, "full")})`,
           }}
         >
           <div className="hero-content scroll-reveal" data-reveal>
@@ -482,11 +488,11 @@ export default function WeddingInvite({
           </div>
           <div className="couple-grid">
             <Img
-                src={getImageUrl(metadata.images.coupleLeft)}
+                src={getImageUrl(metadata.images.coupleLeft, "medium")}
                 alt={metadata.imageAlts.weddingPortrait}
             />
             <Img
-                src={getImageUrl(metadata.images.coupleRight)}
+                src={getImageUrl(metadata.images.coupleRight, "medium")}
                 alt={metadata.imageAlts.weddingPortrait}
             />
           </div>
@@ -494,7 +500,7 @@ export default function WeddingInvite({
 
         <Img
           className="full-photo"
-          src={getImageUrl(metadata.images.fullPhoto1)}
+          src={getImageUrl(metadata.images.fullPhoto1, "medium")}
           alt={metadata.imageAlts.weddingCouple}
         />
 
@@ -558,7 +564,7 @@ export default function WeddingInvite({
 
         <section className="story scroll-reveal" data-reveal>
           <Img
-            src={getImageUrl(metadata.images.story)}
+            src={getImageUrl(metadata.images.story, "medium")}
             alt={metadata.imageAlts.coupleStory}
           />
           <div>
@@ -579,7 +585,7 @@ export default function WeddingInvite({
                 className="scroll-reveal"
                 data-reveal
                 style={{ transitionDelay: `${index * 80}ms` }}
-                src={getImageUrl(photo)}
+                src={getImageUrl(photo, "thumb")}
                 alt={`Wedding album ${index + 1}`}
                 role="button"
                 tabIndex={0}
@@ -600,7 +606,7 @@ export default function WeddingInvite({
             <span>Hộp mừng cưới</span>
           </h2>
           <Img
-              src={getImageUrl("giftbox.png")}
+              src={getImageUrl("giftbox.png", "medium")}
               alt={"Open wedding gift"}
               onClick={() => setGiftOpen(true)}
           />
@@ -710,7 +716,7 @@ export default function WeddingInvite({
 
         <section className="thanks scroll-reveal" data-reveal>
           <Img
-            src={getImageUrl(metadata.images.thankYou)}
+            src={getImageUrl(metadata.images.thankYou, "medium")}
             alt={metadata.imageAlts.thankYou}
           />
           <div>
@@ -744,8 +750,8 @@ export default function WeddingInvite({
         onClose={() => setGiftOpen(false)}
       >
         <div className="gift-grid">
-          <Gift name={metadata.modals.gift.groomName} src={getImageUrl(metadata.images.groomQR)} />
-          <Gift name={metadata.modals.gift.brideName} src={getImageUrl(metadata.images.bribeQR)} />
+          <Gift name={metadata.modals.gift.groomName} src={getImageUrl(metadata.images.groomQR, "raw")} />
+          <Gift name={metadata.modals.gift.brideName} src={getImageUrl(metadata.images.bribeQR, "raw")} />
         </div>
       </Modal>
 
@@ -828,7 +834,7 @@ export default function WeddingInvite({
               </button>
               <img
                 className="gallery-lightbox__image"
-                src={getImageUrl(photos[selectedPhotoIndex])}
+                src={getImageUrl(photos[selectedPhotoIndex], "full")}
                 alt={`Wedding album ${selectedPhotoIndex + 1}`}
                 style={{ transform: `scale(${zoom})` }}
               />
@@ -846,7 +852,7 @@ export default function WeddingInvite({
 
       {toast && <div className="toast">{toast}</div>}
       {/* Audio element for background music */}
-      <audio ref={audioRef} src="/music/wedding-music.mp3" loop preload="auto">
+      <audio ref={audioRef} src={MUSIC_URL} loop preload="auto">
          <track kind="captions" />
       </audio>
     </main>
